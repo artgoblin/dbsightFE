@@ -10,7 +10,12 @@ const Layout = () => {
     { name: "Query Execution", href: "/query", icon: Code },
     { name: "Connections", href: "/connections", icon: Database },
   ];
-  return <div>Layout</div>;
+  return (          
+    <>
+      <Database className="h-6 w-6 text-primary" />
+      <p className="text-primary">DBSight</p>
+    </>
+  );
 };
 
 export default Layout;
