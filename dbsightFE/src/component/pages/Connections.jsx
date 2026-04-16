@@ -73,8 +73,22 @@ const Connections = () => {
                         >
                           {item.connection_name}
                         </Typography>
-                        <span className="ml-auto shrink-0 px-2 py-0.5 text-xs font-medium bg-green-900 text-green-400 font-bold rounded-full">
-                          {item.is_connected ? "Connected" : "Not Connected"}
+                        <span className="ml-auto shrink-0 px-2 py-0.5 text-xs font-medium">
+                          {item.is_connected ? (
+                            <>
+                              <span className="flex items-center gap-2 p-1 px-2 bg-green-900/70 text-green-400 font-bold rounded-full">
+                                <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                Connected
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex items-center gap-2 p-1 px-2 bg-red-900/70 text-red-400 font-bold rounded-full">
+                                <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                                Disconnected
+                              </span>
+                            </>
+                          )}
                         </span>
                       </div>
                       <Typography

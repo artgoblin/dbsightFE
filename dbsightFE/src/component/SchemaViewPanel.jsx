@@ -96,10 +96,10 @@ const renderSchemaTree = (schemaData) => {
                             <strong>Type:</strong> {col.columnType || "unknown"}
                           </div>
                           {isPK && (
-                            <div className="text-yellow-300">Primary Key</div>
+                            <div className="text-orange-300">Primary Key</div>
                           )}
                           {isUnique && (
-                            <div className="text-green-300">Unique Key</div>
+                            <div className="text-green-400">Unique Key</div>
                           )}
                         </div>
                       }
