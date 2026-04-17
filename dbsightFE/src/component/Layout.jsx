@@ -11,11 +11,12 @@ import AIChatInterface from "./pages/AIChatInterface";
 const Layout = () => {
   const [reconnectDatabase] = useReconnectDatabaseMutation();
   const [database, setDatabase] = useState("Adventureworks");
+  const location = useLocation();
 
   const navigation = [
-    { name: "AI Chat", href: "/", icon: MessageSquare },
-    { name: "Query Execution", href: "/query", icon: Code },
-    { name: "Connections", href: "/connections", icon: Database },
+    { id: 1, name: "AI Chat", href: "/", icon: MessageSquare },
+    { id: 2, name: "Query Execution", href: "/query", icon: Code },
+    { id: 3, name: "Connections", href: "/connections", icon: Database },
   ];
   return (
     <div className="flex h-screen bg-zinc-900">
@@ -30,6 +31,7 @@ const Layout = () => {
             const isActive = location.pathname === item.href;
             return (
               <Link
+                key={item.id}
                 to={item.href}
                 className={cn(
                   "flex items-center p-2 justify-center hover:bg-zinc-800 rounded-lg cursor-pointer transition-colors",
@@ -53,7 +55,7 @@ const Layout = () => {
         </div>
       </div>
       <div className="w-60 flex flex-col">
-        <div className=" p-3 border-b border-r border-zinc-800">
+        <div className="p-3 border-b border-r border-zinc-800">
           <DatabaseInfoPanel
             reconnectDatabase={reconnectDatabase}
             database={database}

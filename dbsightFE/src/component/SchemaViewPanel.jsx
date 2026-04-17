@@ -14,7 +14,7 @@ import {
   TypeOutlineIcon,
   FileText,
 } from "lucide-react";
-import { useGetSchemaDetailsQuery } from "../features/schema/schemaApi";
+import { useGetSchemaDetailsQuery } from "../features/schema/databaseConnectionApi";
 import { getToken } from "./ui/auth";
 import Tooltip from "@mui/material/Tooltip";
 import Skeleton from "@mui/material/Skeleton";

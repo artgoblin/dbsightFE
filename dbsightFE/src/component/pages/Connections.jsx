@@ -12,13 +12,37 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import NewConnectionFormPop from "../NewConnectionFormPop";
-import { useGetDatabaseConnectionQuery } from "../../features/schema/databaseConnectionApi";
+import {
+  useGetDatabaseConnectionQuery,
+  useDeleteDatabaseConnectionMutation,
+  useReconnectDatabaseMutation,
+} from "../../features/schema/databaseConnectionApi";
 const Connections = () => {
-  const { data, isLoading, isError } = useGetDatabaseConnectionQuery();
+  const { data, refetch, isLoading, isError } = useGetDatabaseConnectionQuery();
   const [openNewConnectionForm, setOpenNewConnectionForm] = useState(false);
+  const [deleteDatabaseConnection] = useDeleteDatabaseConnectionMutation();
+  const [reconnectDatabase] = useReconnectDatabaseMutation();
+
   console.log(data);
   const handleAddNewButtonClick = () => {
     setOpenNewConnectionForm(true);
+  };
+
+  const handleReconnect = async (databaseName) => {
+    try {
+      await reconnectDatabase(databaseName).unwrap();
+      refetch();
+    } catch (error) {
+      console.error("Failed to reconnect database:", error);
+    }
+  };
+  const handleDelete = async (databaseName) => {
+    try {
+      await deleteDatabaseConnection(databaseName).unwrap();
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete database connection:", error);
+    }
   };
   return (
     <div className="flex flex-col h-screen bg-black text-white">
@@ -178,6 +202,7 @@ const Connections = () => {
                   size="small"
                   variant="contained"
                   startIcon={<RefreshCwIcon />}
+                  onClick={() => handleReconnect(item.database_name)}
                   sx={{
                     flex: "1 1 auto",
                     minWidth: "0",
@@ -200,6 +225,9 @@ const Connections = () => {
                   size="small"
                   variant="contained"
                   startIcon={<Trash />}
+                  onClick={() => {
+                    handleDelete(item.database_name);
+                  }}
                   sx={{
                     flex: "1 1 auto",
                     minWidth: "0",

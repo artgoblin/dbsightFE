@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   Box,
@@ -6,8 +6,11 @@ import {
   Button,
   TextField,
   MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
+import { useCreateDatabaseConnectionMutation } from "../features/schema/databaseConnectionApi";
 
 const inputStyle = {
   backgroundColor: "#2a2a2a",
@@ -44,6 +47,31 @@ const NewConnectionFormPop = ({
 }) => {
   const handleClose = () => setOpenNewConnectionForm(false);
 
+  const [createDatabaseConnection] = useCreateDatabaseConnectionMutation();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (values) => {
+    try {
+      const payload = {
+        connection_name: values.connectionName,
+        db_type: values.databaseType,
+        host: values.host,
+        port: values.port,
+        database_name: values.databaseName,
+        username: values.username,
+        password: values.password,
+      };
+      const response = await createDatabaseConnection(payload).unwrap();
+      if (response.error.code == "error") {
+        setErrorMessage(response.error.message);
+      } else {
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Failed to create database connection:", error);
+    }
+  };
+
   const initialValues = {
     connectionName: "",
     databaseType: "PostgreSQL",
@@ -66,230 +94,249 @@ const NewConnectionFormPop = ({
   };
 
   return (
-    <Modal open={openNewConnectionForm} onClose={handleClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 420,
-          bgcolor: "#1c1c1c",
-          borderRadius: "10px",
-          boxShadow: 24,
-          p: 2,
-          outline: "none",
-        }}
-      >
-        {/* Header */}
-        <Box sx={{ mb: 2 }}>
-          <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: 18 }}>
-            Add Database Connection
-          </Typography>
-          <Typography sx={{ color: "#888", fontSize: 13 }}>
-            Configure a new database connection
-          </Typography>
-        </Box>
-
-        <Formik
-          initialValues={initialValues}
-          validate={validate}
-          onSubmit={(values) => {
-            console.log(values);
-            handleClose();
+    <>
+      <Modal open={openNewConnectionForm} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 420,
+            bgcolor: "#1c1c1c",
+            borderRadius: "10px",
+            boxShadow: 24,
+            p: 2,
+            outline: "none",
           }}
         >
-          {({
-            isSubmitting,
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-          }) => (
-            <Form>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                {/* Connection Name */}
-                <Box>
-                  <Field
-                    as={TextField}
-                    name="connectionName"
-                    placeholder="Connection Name"
-                    fullWidth
-                    value={values.connectionName}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    sx={inputStyle}
-                  />
-                  {touched.connectionName && errors.connectionName && (
-                    <Typography color="error" variant="caption">
-                      {errors.connectionName}
-                    </Typography>
-                  )}
+          {/* Header */}
+          <Box sx={{ mb: 2 }}>
+            <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: 18 }}>
+              Add Database Connection
+            </Typography>
+            <Typography sx={{ color: "#888", fontSize: 13 }}>
+              Configure a new database connection
+            </Typography>
+          </Box>
+
+          <Formik
+            initialValues={initialValues}
+            validate={validate}
+            onSubmit={async (values, { setSubmitting }) => {
+              await handleSubmit(values);
+              setSubmitting(false);
+            }}
+          >
+            {({
+              isSubmitting,
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleBlur,
+            }) => (
+              <Form>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  {/* Connection Name */}
+                  <Box>
+                    <Field
+                      as={TextField}
+                      name="connectionName"
+                      placeholder="Connection Name"
+                      fullWidth
+                      value={values.connectionName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      sx={inputStyle}
+                    />
+                    {touched.connectionName && errors.connectionName && (
+                      <Typography color="error" variant="caption">
+                        {errors.connectionName}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {/* Database Type */}
+                  <Box>
+                    <Typography sx={labelStyle}>Database Type</Typography>
+                    <Field
+                      as={TextField}
+                      name="databaseType"
+                      select
+                      fullWidth
+                      value={values.databaseType}
+                      onChange={handleChange}
+                      sx={inputStyle}
+                      SelectProps={{
+                        MenuProps: {
+                          PaperProps: {
+                            sx: { bgcolor: "#2a2a2a", color: "#fff" },
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value="PostgreSQL">PostgreSQL</MenuItem>
+                      <MenuItem value="MySQL">MySQL</MenuItem>
+                    </Field>
+                  </Box>
+
+                  {/* Host + Port */}
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Box sx={{ flex: 2 }}>
+                      <Typography sx={labelStyle}>Host</Typography>
+                      <Field
+                        as={TextField}
+                        name="host"
+                        fullWidth
+                        placeholder="Enter host"
+                        value={values.host}
+                        onChange={handleChange}
+                        sx={inputStyle}
+                      />
+                      {touched.host && errors.host && (
+                        <Typography color="error" variant="caption">
+                          {errors.host}
+                        </Typography>
+                      )}
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={labelStyle}>Port</Typography>
+                      <Field
+                        as={TextField}
+                        name="port"
+                        fullWidth
+                        placeholder="Enter port"
+                        value={values.port}
+                        onChange={handleChange}
+                        sx={inputStyle}
+                      />
+                      {touched.port && errors.port && (
+                        <Typography color="error" variant="caption">
+                          {errors.port}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* Database Name */}
+                  <Box>
+                    <Typography sx={labelStyle}>Database Name</Typography>
+                    <Field
+                      as={TextField}
+                      name="databaseName"
+                      fullWidth
+                      placeholder="Enter database name"
+                      value={values.databaseName}
+                      onChange={handleChange}
+                      sx={inputStyle}
+                    />
+                    {touched.databaseName && errors.databaseName && (
+                      <Typography color="error" variant="caption">
+                        {errors.databaseName}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {/* Username */}
+                  <Box>
+                    <Typography sx={labelStyle}>Username</Typography>
+                    <Field
+                      as={TextField}
+                      name="username"
+                      fullWidth
+                      placeholder="Enter username"
+                      value={values.username}
+                      onChange={handleChange}
+                      sx={inputStyle}
+                    />
+                    {touched.username && errors.username && (
+                      <Typography color="error" variant="caption">
+                        {errors.username}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {/* Password */}
+                  <Box>
+                    <Typography sx={labelStyle}>Password</Typography>
+                    <Field
+                      as={TextField}
+                      name="password"
+                      type="password"
+                      fullWidth
+                      placeholder="Enter password"
+                      value={values.password}
+                      onChange={handleChange}
+                      sx={inputStyle}
+                    />
+                    {touched.password && errors.password && (
+                      <Typography color="error" variant="caption">
+                        {errors.password}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
 
-                {/* Database Type */}
-                <Box>
-                  <Typography sx={labelStyle}>Database Type</Typography>
-                  <Field
-                    as={TextField}
-                    name="databaseType"
-                    select
-                    fullWidth
-                    value={values.databaseType}
-                    onChange={handleChange}
-                    sx={inputStyle}
-                    SelectProps={{
-                      MenuProps: {
-                        PaperProps: {
-                          sx: { bgcolor: "#2a2a2a", color: "#fff" },
-                        },
-                      },
+                {/* Buttons */}
+                <Box
+                  sx={{
+                    mt: 3,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 1,
+                  }}
+                >
+                  <Button
+                    onClick={handleClose}
+                    sx={{
+                      bgcolor: "#2a2a2a",
+                      color: "#fff",
+                      textTransform: "none",
+                      px: 2,
                     }}
                   >
-                    <MenuItem value="PostgreSQL">PostgreSQL</MenuItem>
-                    <MenuItem value="MySQL">MySQL</MenuItem>
-                  </Field>
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={isSubmitting}
+                    sx={{
+                      bgcolor: "#2563eb",
+                      textTransform: "none",
+                      px: 3,
+                      borderRadius: "6px",
+                    }}
+                  >
+                    Connect
+                  </Button>
                 </Box>
-
-                {/* Host + Port */}
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Box sx={{ flex: 2 }}>
-                    <Typography sx={labelStyle}>Host</Typography>
-                    <Field
-                      as={TextField}
-                      name="host"
-                      fullWidth
-                      placeholder="Enter host"
-                      value={values.host}
-                      onChange={handleChange}
-                      sx={inputStyle}
-                    />
-                    {touched.host && errors.host && (
-                      <Typography color="error" variant="caption">
-                        {errors.host}
-                      </Typography>
-                    )}
-                  </Box>
-
-                  <Box sx={{ flex: 1 }}>
-                    <Typography sx={labelStyle}>Port</Typography>
-                    <Field
-                      as={TextField}
-                      name="port"
-                      fullWidth
-                      placeholder="Enter port"
-                      value={values.port}
-                      onChange={handleChange}
-                      sx={inputStyle}
-                    />
-                    {touched.port && errors.port && (
-                      <Typography color="error" variant="caption">
-                        {errors.port}
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-
-                {/* Database Name */}
-                <Box>
-                  <Typography sx={labelStyle}>Database Name</Typography>
-                  <Field
-                    as={TextField}
-                    name="databaseName"
-                    fullWidth
-                    placeholder="Enter database name"
-                    value={values.databaseName}
-                    onChange={handleChange}
-                    sx={inputStyle}
-                  />
-                  {touched.databaseName && errors.databaseName && (
-                    <Typography color="error" variant="caption">
-                      {errors.databaseName}
-                    </Typography>
-                  )}
-                </Box>
-
-                {/* Username */}
-                <Box>
-                  <Typography sx={labelStyle}>Username</Typography>
-                  <Field
-                    as={TextField}
-                    name="username"
-                    fullWidth
-                    placeholder="Enter username"
-                    value={values.username}
-                    onChange={handleChange}
-                    sx={inputStyle}
-                  />
-                  {touched.username && errors.username && (
-                    <Typography color="error" variant="caption">
-                      {errors.username}
-                    </Typography>
-                  )}
-                </Box>
-
-                {/* Password */}
-                <Box>
-                  <Typography sx={labelStyle}>Password</Typography>
-                  <Field
-                    as={TextField}
-                    name="password"
-                    type="password"
-                    fullWidth
-                    placeholder="Enter password"
-                    value={values.password}
-                    onChange={handleChange}
-                    sx={inputStyle}
-                  />
-                  {touched.password && errors.password && (
-                    <Typography color="error" variant="caption">
-                      {errors.password}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-
-              {/* Buttons */}
-              <Box
-                sx={{
-                  mt: 3,
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: 1,
-                }}
-              >
-                <Button
-                  onClick={handleClose}
-                  sx={{
-                    bgcolor: "#2a2a2a",
-                    color: "#fff",
-                    textTransform: "none",
-                    px: 2,
-                  }}
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={isSubmitting}
-                  sx={{
-                    bgcolor: "#2563eb",
-                    textTransform: "none",
-                    px: 3,
-                    borderRadius: "6px",
-                  }}
-                >
-                  Connect
-                </Button>
-              </Box>
-            </Form>
-          )}
-        </Formik>
-      </Box>
-    </Modal>
+              </Form>
+            )}
+          </Formik>
+        </Box>
+      </Modal>
+      {errorMessage && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+        >
+          <Alert
+            onClose={() => setErrorMessage("")}
+            severity="error"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {errorMessage}
+          </Alert>
+        </Snackbar>
+      )}
+    </>
   );
 };
 
