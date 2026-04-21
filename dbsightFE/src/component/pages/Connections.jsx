@@ -3,13 +3,7 @@ import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import {
-  Database,
-  DeleteIcon,
-  PlusCircle,
-  RefreshCwIcon,
-  Trash,
-} from "lucide-react";
+import { Database, PlusCircle, RefreshCwIcon, Trash } from "lucide-react";
 import { useState } from "react";
 import NewConnectionFormPop from "../NewConnectionFormPop";
 import {
