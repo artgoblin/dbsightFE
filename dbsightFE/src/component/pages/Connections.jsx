@@ -225,6 +225,7 @@ const Connections = () => {
                   size="small"
                   variant="contained"
                   startIcon={<Trash />}
+                  disabled={item.database_name === "Adventureworks"}
                   onClick={() => {
                     handleDelete(item.database_name);
                   }}
