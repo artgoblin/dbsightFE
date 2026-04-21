@@ -1,39 +1,9 @@
+import { Button, Tooltip } from "@mui/material";
 import { Clock, Bookmark, Save, Trash2, Play, Plus } from "lucide-react";
+import { useGetAllQueryCacheQuery } from "../../features/schema/queryExecutionApi";
 
 const QueryExecution = () => {
-  const queryHistory = [
-    {
-      id: 1,
-      query: "SELECT * FROM users WHERE created_at > '2024-01-01'",
-      time: "2 minutes ago",
-    },
-    {
-      id: 2,
-      query: "SELECT product_name, SUM(quantity) FROM orders...",
-      time: "15 minutes ago",
-    },
-    {
-      id: 3,
-      query: "SELECT c.name, COUNT(o.id) FROM customers c...",
-      time: "1 hour ago",
-    },
-    {
-      id: 4,
-      query: "SELECT * FROM products WHERE price > 100",
-      time: "2 hours ago",
-    },
-    {
-      id: 5,
-      query: "UPDATE users SET status = 'inactive' WHERE...",
-      time: "3 hours ago",
-    },
-    {
-      id: 6,
-      query: "DELETE FROM temp_data WHERE created_at <...",
-      time: "5 hours ago",
-    },
-  ];
-
+  const { data: queryHistory } = useGetAllQueryCacheQuery();
   const savedQueries = [
     {
       id: 1,
@@ -112,15 +82,24 @@ const QueryExecution = () => {
                   <Trash2 size={16} />
                   Clear
                 </button>
-                <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded transition">
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#108039ff",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#22c55e",
+                    },
+                  }}
+                >
                   <Play size={16} />
                   Execute
-                </button>
+                </Button>
               </div>
             </div>
             <textarea
               data-slot="textarea"
-              className="resize-none flex w-full rounded-md border border-zinc-800 bg-transparent px-3 py-2 text-base text-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-800 focus-visible:border-zinc-800 md:text-sm font-mono min-h-[150px]"
+              className="resize-none flex w-full rounded-md border border-zinc-800 bg-transparent px-3 py-2 text-base text-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-800 focus-visible:border-zinc-800 md:text-sm font-mono min-h-[150px] custom-scrollbar"
             />
           </div>
         </div>
@@ -145,13 +124,13 @@ const QueryExecution = () => {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-            {queryHistory.map((item) => (
+            {queryHistory?.map((item, indx) => (
               <div
-                key={item.id}
+                key={indx}
                 className="p-3 bg-zinc-800/50 rounded-lg hover:bg-zinc-800 cursor-pointer transition"
               >
                 <p className="text-sm text-zinc-300 font-mono truncate">
-                  {item.query}
+                  <Tooltip title={item}>{item}</Tooltip>
                 </p>
               </div>
             ))}

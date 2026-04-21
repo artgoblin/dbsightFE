@@ -73,7 +73,7 @@ const Layout = () => {
         </div>
       </div>
       <div className="flex-1 h-full bg-black">
-        <Outlet />
+        <Outlet context={{ database }} />
       </div>
     </div>
   );

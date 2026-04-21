@@ -6,7 +6,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl: "http://localhost:8080", // or '/' if using proxy
   prepareHeaders: (headers, { getState }) => {
     const token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3NjQzNTcwNywiZXhwIjoxNzc2NTIyMTA3fQ.TEekJwN0MeFHtwfxk9e0D1wCzkiGpw_agYJKfiG58Rs";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3Njc4NDA5NCwiZXhwIjoxNzc2ODcwNDk0fQ.w2lIob3h5tru4zaaC0UilK1vj0IZb61nglWIhL6IG2s";
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
