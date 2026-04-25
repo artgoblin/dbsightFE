@@ -90,7 +90,7 @@ const AIChatInterface = () => {
         prompt: currentInput,
         dbName: database,
       }).unwrap();
-      if (response?.result?.error?.message !== "") {
+      if (response?.result?.error?.message !== undefined) {
         throw new Error(response?.result?.error?.message);
       }
       const botMessage = {
@@ -131,7 +131,7 @@ const AIChatInterface = () => {
   return (
     <div className="flex flex-col h-screen bg-black text-white">
       {/* Header Section */}
-      <div className="flex flex-col p-5 border-b border-zinc-800 bg-zinc-900">
+      <div className="flex flex-col p-2 border-b border-zinc-800 bg-zinc-900">
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-xl font-bold text-white">AI Chat Assistant</h1>
@@ -501,7 +501,7 @@ const AIChatInterface = () => {
       </div>
 
       {/* Footer / Input Section */}
-      <div className="p-4 pb-6 border-t bg-zinc-900 border-zinc-800">
+      <div className="p-3 pb-3 border-t bg-zinc-900 border-zinc-800">
         <div className="relative max-w-4xl mx-auto">
           <input
             type="text"
@@ -522,6 +522,11 @@ const AIChatInterface = () => {
           >
             <Send className="h-4 w-4" />
           </button>
+        </div>
+        <div className="flex justify-center mt-2">
+          <p className="text-xs text-zinc-500">
+            AI can make mistakes. Check important information.
+          </p>
         </div>
       </div>
     </div>

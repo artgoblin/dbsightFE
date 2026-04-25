@@ -41,7 +41,7 @@ const Connections = () => {
   return (
     <div className="flex flex-col h-screen bg-black text-white">
       {/* Header Section */}
-      <div className="flex items-center justify-between p-5 border-b border-zinc-800">
+      <div className="flex items-center justify-between p-2 border-b border-zinc-800">
         <div>
           <h1 className="text-xl font-bold text-white">Database Connections</h1>
           <p className="text-sm text-zinc-400 mt-1">
@@ -74,9 +74,15 @@ const Connections = () => {
                   }}
                 >
                   <div className="flex items-start gap-3 mb-4">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-500 ">
-                      <Database className="h-6 w-6 text-white" />
-                    </div>
+                    {item.is_connected ? (
+                      <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-500 ">
+                        <Database className="h-6 w-6 text-white" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500 ">
+                        <Database className="h-6 w-6 text-white" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <Typography
