@@ -11,6 +11,7 @@ import {
   useDeleteDatabaseConnectionMutation,
   useReconnectDatabaseMutation,
 } from "../../features/schema/databaseConnectionApi";
+import { Tooltip } from "@mui/material";
 const Connections = () => {
   const { data, refetch, isLoading, isError } = useGetDatabaseConnectionQuery();
   const [openNewConnectionForm, setOpenNewConnectionForm] = useState(false);
@@ -49,7 +50,11 @@ const Connections = () => {
           </p>
         </div>
 
-        <Button variant="contained" onClick={handleAddNewButtonClick}>
+        <Button
+          variant="contained"
+          sx={{ textTransform: "none" }}
+          onClick={handleAddNewButtonClick}
+        >
           <PlusCircle className="h-5 w-5 mr-2" />
           Add Connection
         </Button>
@@ -95,7 +100,13 @@ const Connections = () => {
                           }}
                           className="truncate"
                         >
-                          {item.connection_name}
+                          <Tooltip
+                            title={item.connection_name}
+                            placement="top"
+                            arrow
+                          >
+                            {item.connection_name}
+                          </Tooltip>
                         </Typography>
                         <span className="ml-auto shrink-0 px-2 py-0.5 text-xs font-medium">
                           {item.is_connected ? (

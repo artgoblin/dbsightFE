@@ -119,11 +119,11 @@ const DatabaseInfoPanel = ({reconnectDatabase, database, setDatabase}) => {
                   <Database size={20} />
                   <span>
                     {label.length > 12 ? (
-                      <Tooltip title={label} placement="top-start">
+                      <Tooltip title={label} placement="top-start" arrow>
                         <span>{`${label.slice(0, 12)}...`}</span>
                       </Tooltip>
                     ) : (
-                      <Tooltip title={label} placement="top-start">
+                      <Tooltip title={label} placement="top-start" arrow>
                         <span>{label}</span>
                       </Tooltip>
                     )}

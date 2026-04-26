@@ -25,27 +25,3 @@
   scrollbar-width: thin;
   scrollbar-color: #3f3f46 #18181b;
 }
-
-/* MUI DataGrid custom scrollbar */
-.datagrid-custom-scroll .MuiDataGrid-virtualScroller::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.datagrid-custom-scroll .MuiDataGrid-virtualScroller::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.datagrid-custom-scroll .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb {
-  background: #3f3f46;
-  border-radius: 4px;
-}
-
-.datagrid-custom-scroll .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
-}
-
-.datagrid-custom-scroll .MuiDataGrid-virtualScroller {
-  scrollbar-width: thin;
-  scrollbar-color: #3f3f46 transparent;
-}

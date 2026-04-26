@@ -6,7 +6,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl: "http://localhost:8080", // or '/' if using proxy
   prepareHeaders: (headers, { getState }) => {
     const token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3NzA1Nzk4OCwiZXhwIjoxNzc3MTQ0Mzg4fQ.7VXCme1R8TJIGr6Mg1Rk8-zBZMi4cFL1G2o9Fql045U";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3NzEzOTExOSwiZXhwIjoxNzc3MjI1NTE5fQ.omw8OI9uuRYYGoVJNHdO5kw4xK0r-s0jZ71k8_Ceuc4";
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -27,9 +27,24 @@ export const queryExecutionApi = createApi({
     }),
     saveQuery: builder.mutation({
       query: (data) => ({
-        url: `/ask/savequery`,
+        url: `/ask/savedquery`,
         method: "POST",
         body: data,
+      }),
+      invalidatesTags: ["QueryExecution"],
+    }),
+    updateQuery: builder.mutation({
+      query: ({id,data}) => ({
+        url: `/ask/savedquery/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["QueryExecution"],
+    }),
+    deleteSavedQuery: builder.mutation({
+      query: (id) => ({
+        url: `/ask/savedquery/${id}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["QueryExecution"],
     }),
@@ -55,4 +70,6 @@ export const {
   useSaveQueryMutation,
   useGetAllSavedQueryQuery,
   useExecuteSqlMutation,
+  useDeleteSavedQueryMutation,
+  useUpdateQueryMutation,
 } = queryExecutionApi;

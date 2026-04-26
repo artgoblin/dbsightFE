@@ -17,6 +17,7 @@ import {
 import Editor from "@monaco-editor/react";
 import Tooltip from "@mui/material/Tooltip";
 import {
+  useDeleteSavedQueryMutation,
   useExecuteSqlMutation,
   useGetAllQueryCacheQuery,
   useGetAllSavedQueryQuery,
@@ -25,52 +26,56 @@ import {
 import { useOutletContext } from "react-router";
 import { DataGrid } from "@mui/x-data-grid";
 import { Alert, Box, Snackbar } from "@mui/material";
-const transformResultToGrid = (data) => {
-  if (!data || data.length === 0) return { rows: [], cols: [] };
-
-  // Create columns dynamically from object keys
-  const cols = Object.keys(data[0]).map((key) => ({
-    field: key,
-    headerName: key
-      .replace(/_/g, " ")
-      .replace(/([A-Z])/g, " $1")
-      .trim()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" "),
-    flex: 1,
-    minWidth: 120,
-  }));
-
-  // Add id to each row
-  const rows = data.map((row, index) => ({
-    id: index + 1,
-    ...row,
-  }));
-
-  return { rows, cols };
-};
+import SaveQueryFormPop from "../SaveQueryFormPop";
+import VisualizePop from "../VisualizePop";
+import QueryResultGrid from "../QueryResultGrid";
 const QueryExecution = () => {
   const { data: queryHistory } = useGetAllQueryCacheQuery();
-  const [saveQuery] = useSaveQueryMutation();
-  const gridRef = useRef(null);
   const { data: savedQueries } = useGetAllSavedQueryQuery();
+  const [deleteSavedQuery] = useDeleteSavedQueryMutation();
   const { database } = useOutletContext();
 
-  const [tabs, setTabs] = useState([
-    {
-      id: "tab-1",
-      name: "Query 1",
-      query: "-- Write your SQL query here\n",
-      hasResults: false,
-    },
-  ]);
-  const [activeTabId, setActiveTabId] = useState("tab-1");
+  const [tabs, setTabs] = useState(() => {
+    const saved = localStorage.getItem("dbsight_query_tabs");
+    return saved
+      ? JSON.parse(saved)
+      : [
+          {
+            id: "tab-1",
+            name: "Query 1",
+            query: "-- Write your SQL query here\n",
+            hasResults: false,
+          },
+        ];
+  });
+
+  const [activeTabId, setActiveTabId] = useState(() => {
+    return localStorage.getItem("dbsight_activeTabId") || "tab-1";
+  });
+
   const [executeSql, { isLoading: isExecuting }] = useExecuteSqlMutation();
   const [loading, setLoading] = useState(false);
-  const [tabContents, setTabContents] = useState({
-    "tab-1": "-- Write your SQL query here\n",
+
+  const [tabContents, setTabContents] = useState(() => {
+    const saved = localStorage.getItem("dbsight_tabContents");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          "tab-1": "-- Write your SQL query here\n",
+        };
   });
+
+  useEffect(() => {
+    localStorage.setItem("dbsight_query_tabs", JSON.stringify(tabs));
+  }, [tabs]);
+
+  useEffect(() => {
+    localStorage.setItem("dbsight_activeTabId", activeTabId);
+  }, [activeTabId]);
+
+  useEffect(() => {
+    localStorage.setItem("dbsight_tabContents", JSON.stringify(tabContents));
+  }, [tabContents]);
   const [executionResult, setExecutionResult] = useState(null);
   const editorRef = useRef(null);
 
@@ -80,6 +85,10 @@ const QueryExecution = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [openSaveQueryModal, setOpenSaveQueryModal] = useState(false);
+  const modalTitleRef = useRef(null);
+  const editInitialValues = useRef(null);
+  const [openVisualizeModal, setOpenVisualizeModal] = useState(false);
   // keep last request body so Load More can re-use it
   const lastRequestRef = useRef(null);
 
@@ -209,29 +218,46 @@ const QueryExecution = () => {
     document.body.removeChild(element);
   };
 
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
 
-    const scroller = grid.querySelector(".MuiDataGrid-virtualScroller");
-    if (!scroller) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = scroller;
-
-      if (scrollHeight - scrollTop - clientHeight < 50) {
-        handleLoadMore();
-      }
+  const handleSaveQuery = () => {
+    modalTitleRef.current = "Save Query";
+    setOpenSaveQueryModal(true);
+    editInitialValues.current = {
+      databaseName: database,
+      query: tabContents[activeTabId],
+      title: "",
+      description: "",
     };
+  };
 
-    scroller.addEventListener("scroll", handleScroll);
-
-    return () => scroller.removeEventListener("scroll", handleScroll);
-  }, [offset, hasMore, loading]);
+  const handleSavedQueryDelete = (id) => {
+    deleteSavedQuery(id)
+      .unwrap()
+      .then(() => {
+        setOpen(true);
+        setErrorMessage("Query deleted successfully");
+      })
+      .catch((err) => {
+        console.error(err);
+        setErrorMessage(err.message);
+        setOpen(true);
+      });
+  };
+  const handleEditQuery = (item, id) => {
+    modalTitleRef.current = "Edit Query";
+    setOpenSaveQueryModal(true);
+    editInitialValues.current = {
+      databaseName: item.database_name,
+      query: item.query,
+      title: item.title,
+      description: item.description,
+      id: item.id,
+    };
+  };
   return (
     <div className="flex flex-row h-screen bg-zinc-950 overflow-hidden">
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
         {/* Header */}
         <div className="border-b border-zinc-800 bg-zinc-900 p-2 flex-shrink-0">
           <h1 className="text-xl font-bold text-white">Query Execution</h1>
@@ -241,7 +267,7 @@ const QueryExecution = () => {
         </div>
 
         {/* Query Tabs */}
-        <div className="flex items-center border-b border-zinc-800 bg-zinc-900/50 flex-shrink-0 overflow-x-auto">
+        <div className="flex items-center border-b border-zinc-800 bg-zinc-900/50 flex-shrink-0 overflow-x-auto w-full">
           {tabs.map((tab) => (
             <div
               key={tab.id}
@@ -286,12 +312,14 @@ const QueryExecution = () => {
             <Tooltip title="Visualize Data" arrow>
               <View
                 size={25}
+                onClick={() => setOpenVisualizeModal(true)}
                 className="p-1 cursor-pointer bg-zinc-500/20 text-zinc-400 rounded-full hover:text-white cursor-pointer mr-2 m-2"
               />
             </Tooltip>
             <Tooltip title="Save Query" arrow>
               <Save
                 size={25}
+                onClick={handleSaveQuery}
                 className="text-zinc-400 bg-zinc-500/20 rounded-full p-1 hover:text-white cursor-pointer mr-2 m-2"
               />
             </Tooltip>
@@ -332,88 +360,13 @@ const QueryExecution = () => {
         <div className="flex-1 bg-zinc-950 border-t border-zinc-800 overflow-hidden flex flex-col">
           {executionResult ? (
             <>
-              <Box
-                ref={gridRef}
-                sx={{
-                  flex: 1,
-                  width: "100%",
-                  mt: 1,
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  border: "1px solid #27272a",
-                  bgcolor: "#09090b",
-                  boxShadow:
-                    "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                }}
-              >
-                <DataGrid
-                  rows={transformResultToGrid(executionResult).rows}
-                  columns={transformResultToGrid(executionResult).cols}
-                  onRowsScrollEnd={handleLoadMore}
-                  showToolbar
-                  sx={{
-                    border: "none",
-                    color: "#e4e4e7",
-                    backgroundColor: "#09090b",
-                    "& .MuiDataGrid-columnHeaders": {
-                      backgroundColor: "#18181b",
-                      color: "#ffffff", // Fixed from #1d1d1fff to white
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      borderBottom: "1px solid #27272a",
-                      minHeight: "36px !important",
-                      maxHeight: "36px !important",
-                      lineHeight: "36px !important",
-                    },
-                    "& .MuiDataGrid-toolbar": {
-                      backgroundColor: "#18181b",
-                      color: "#ffffff", // Fixed to white
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      borderBottom: "1px solid #27272a",
-                      minHeight: "36px !important",
-                      maxHeight: "36px !important",
-                      lineHeight: "36px !important",
-                    },
-                    "& .MuiDataGrid-toolbar .MuiSvgIcon-root, & .MuiDataGrid-toolbar button":
-                      {
-                        color: "#ffffff",
-                      },
-                    "& .MuiDataGrid-toolbar button:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.08)",
-                    },
-                    "& .MuiDataGrid-columnHeader": {
-                      height: "36px !important",
-                    },
-                    "& .MuiDataGrid-columnHeaderTitle": {
-                      fontWeight: 600,
-                      color: "#454547",
-                      fontSize: "0.7rem",
-                    },
-                    "& .MuiDataGrid-row": {
-                      backgroundColor: "#09090b",
-                      transition: "background-color 0.2s",
-                    },
-                    "& .MuiDataGrid-row:hover": { backgroundColor: "#18181b" },
-                    "& .MuiDataGrid-cell": {
-                      borderColor: "#27272a",
-                      fontSize: "0.8125rem",
-                      color: "#e4e4e7",
-                      backgroundColor: "transparent",
-                    },
-                    "& .MuiDataGrid-footerContainer": {
-                      backgroundColor: "#18181b",
-                      color: "#a1a1aa",
-                    },
-                    "& .MuiTablePagination-root": { color: "#a1a1aa" },
-                    "& .MuiTablePagination-selectIcon": { color: "#a1a1aa" },
-                  }}
-                />
-              </Box>
+              <QueryResultGrid
+                executionResult={executionResult}
+                handleLoadMore={handleLoadMore}
+                offset={offset}
+                hasMore={hasMore}
+                loading={loading}
+              />
             </>
           ) : errorMessage?.length > 0 ? (
             <div className="h-full flex items-center justify-center text-red-500 p-2">
@@ -473,43 +426,66 @@ const QueryExecution = () => {
               <div
                 key={item.id || index}
                 className="p-3 bg-zinc-800/50 rounded-lg hover:bg-zinc-800 cursor-pointer transition"
-                onClick={() => {
-                  if (item.query) {
-                    handleAddTab(item.query);
-                  }
-                }}
               >
                 <div className="flex-1 flex items-end">
-                  <h3 className="text-sm font-medium text-white mb-2">
-                    {item.name || item.title || "Saved Query"}
+                  <h3 className="text-sm font-medium text-white truncate mb-2">
+                    {item.title}
                   </h3>
                   <Pencil
                     size={18}
+                    onClick={() => handleEditQuery(item)}
                     className="text-zinc-400 hover:text-white cursor-pointer ml-2 mb-2"
-                    onClick={(e) => e.stopPropagation()}
                   />
                   <Trash
                     size={18}
                     className="text-zinc-400 hover:text-white cursor-pointer ml-2 mb-2"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={() => handleSavedQueryDelete(item.id)}
                   />
                 </div>
-                <p className="text-xs text-zinc-400 font-mono truncate mb-3">
-                  {item.query}
-                </p>
-                <div className="flex gap-2">
-                  <span
-                    key={index}
-                    className="px-2 py-1 text-xs bg-zinc-700 text-zinc-300 rounded"
-                  >
-                    {item.description}
-                  </span>
+                <div
+                  onClick={() => {
+                    if (item.query) {
+                      handleAddTab(item.query);
+                    }
+                  }}
+                >
+                  <p className="text-xs text-zinc-400 font-mono truncate mb-3">
+                    {item.query}
+                  </p>
+
+                  <div className="flex gap-2">
+                    <span
+                      key={index}
+                      className="px-2 py-1 text-xs bg-zinc-700 text-zinc-300 rounded"
+                    >
+                      {item.description}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+      {openSaveQueryModal && (
+        <SaveQueryFormPop
+          openSaveQueryModal={openSaveQueryModal}
+          modalTitleRef={modalTitleRef.current}
+          initialValues={editInitialValues.current}
+          setOpenSaveQueryModal={setOpenSaveQueryModal}
+        />
+      )}
+      {openVisualizeModal && (
+        <VisualizePop
+          executionResult={executionResult}
+          openVisualizeModal={openVisualizeModal}
+          setOpenVisualizeModal={setOpenVisualizeModal}
+          handleLoadMore={handleLoadMore}
+          offset={offset}
+          hasMore={hasMore}
+          loading={loading}
+        />
+      )}
     </div>
   );
 };

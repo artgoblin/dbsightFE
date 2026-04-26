@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
 import { useCreateDatabaseConnectionMutation } from "../features/schema/databaseConnectionApi";
+import { X } from "lucide-react";
 
 const inputStyle = {
   backgroundColor: "#2a2a2a",
@@ -111,13 +112,24 @@ const NewConnectionFormPop = ({
           }}
         >
           {/* Header */}
-          <Box sx={{ mb: 2 }}>
-            <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: 18 }}>
-              Add Database Connection
-            </Typography>
-            <Typography sx={{ color: "#888", fontSize: 13 }}>
-              Configure a new database connection
-            </Typography>
+          <Box sx={{ mb: 2, borderBottom: "1px solid #4b4545ff", pb: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: 18 }}>
+                Add Database Connection
+              </Typography>
+              <button
+                onClick={handleClose}
+                className="hover:bg-red-500/20 p-1 rounded-lg cursor-pointer"
+              >
+                <X color="#fff" />
+              </button>
+            </Box>
           </Box>
 
           <Formik
@@ -295,6 +307,9 @@ const NewConnectionFormPop = ({
                       color: "#fff",
                       textTransform: "none",
                       px: 2,
+                      "&:hover": {
+                        bgcolor: "#403f3fff",
+                      },
                     }}
                   >
                     Cancel
@@ -305,10 +320,12 @@ const NewConnectionFormPop = ({
                     variant="contained"
                     disabled={isSubmitting}
                     sx={{
-                      bgcolor: "#2563eb",
                       textTransform: "none",
                       px: 3,
                       borderRadius: "6px",
+                      "&:hover": {
+                        bgcolor: "#265b97ff",
+                      },
                     }}
                   >
                     Connect
