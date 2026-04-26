@@ -500,7 +500,6 @@ const AIChatInterface = () => {
         )}
       </div>
 
-      {/* Footer / Input Section */}
       <div className="p-3 pb-3 border-t bg-zinc-900 border-zinc-800">
         <div className="relative max-w-4xl mx-auto">
           <input
