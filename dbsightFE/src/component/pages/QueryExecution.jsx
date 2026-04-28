@@ -10,9 +10,7 @@ import {
   PlayCircle,
   Save,
   View,
-  Share,
   Download,
-  Share2,
   Search,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
@@ -25,8 +23,7 @@ import {
   useLazyGetSearchedSavedResultsQuery,
 } from "../../features/schema/queryExecutionApi";
 import { useOutletContext, useLocation } from "react-router";
-import { DataGrid } from "@mui/x-data-grid";
-import { Alert, Box, debounce, Snackbar } from "@mui/material";
+import { debounce } from "@mui/material";
 import SaveQueryFormPop from "../SaveQueryFormPop";
 import VisualizePop from "../VisualizePop";
 import QueryResultGrid from "../QueryResultGrid";

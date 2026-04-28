@@ -108,8 +108,7 @@ const AIChatInterface = () => {
       const errorMessage = {
         id: Date.now() + 1,
         text:
-          "Sorry, I encountered an error: " +
-          (err || "Internal server error"),
+          "Sorry, I encountered an error: " + (err || "Internal server error"),
         sender: "bot",
         isError: true,
       };
@@ -215,10 +214,19 @@ const AIChatInterface = () => {
                             onClick={() => {
                               handleExecuteSql(msg.sqlQuery);
                             }}
-                            className="flex flex-row items-center gap-1 bg-blue-600 text-white px-1 py-1 text-xs font-medium rounded-lg hover:text-zinc-300 transition-colors"
+                            className="flex flex-row items-center gap-1 bg-green-800 hover:bg-green-700 text-white px-1 py-1 text-xs font-medium rounded-lg transition-colors"
                             title="Execute SQL"
                           >
                             <Play size={12} /> Execute Sql
+                          </button>
+                          <button
+                            onClick={() =>
+                              navigator.clipboard.writeText(msg.action)
+                            }
+                            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                            title="Copy Action"
+                          >
+                            <Copy size={12} />
                           </button>
                         </div>
                         <div className="bg-zinc-900/50 px-3 py-2 rounded border border-zinc-800">
@@ -238,7 +246,7 @@ const AIChatInterface = () => {
                             onClick={() =>
                               navigator.clipboard.writeText(msg.action)
                             }
-                            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
                             title="Copy Action"
                           >
                             <Copy size={12} />
