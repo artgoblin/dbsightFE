@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { useOutletContext } from "react-router";
-import { Bot, Send, User, Copy, Trash2 } from "lucide-react";
+import { useOutletContext, useNavigate } from "react-router";
+import { Bot, Send, User, Copy, Trash2, Play } from "lucide-react";
 import { useFetchQueryResponseMutation } from "../../features/schema/agentApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
@@ -51,6 +51,7 @@ const AIChatInterface = () => {
     }
   });
 
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [fetchQueryResponse, { isLoading }] = useFetchQueryResponseMutation();
   const messagesEndRef = useRef(null);
@@ -126,6 +127,10 @@ const AIChatInterface = () => {
   const clearChat = () => {
     setMessages([]);
     localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const handleExecuteSql = (sqlQuery) => {
+    navigate("/query", { state: { sqlQuery } });
   };
 
   return (
@@ -207,13 +212,13 @@ const AIChatInterface = () => {
                             Generated SQL:
                           </span>
                           <button
-                            onClick={() =>
-                              navigator.clipboard.writeText(msg.sqlQuery)
-                            }
-                            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-                            title="Copy SQL"
+                            onClick={() => {
+                              handleExecuteSql(msg.sqlQuery);
+                            }}
+                            className="flex flex-row items-center gap-1 bg-blue-600 text-white px-1 py-1 text-xs font-medium rounded-lg hover:text-zinc-300 transition-colors"
+                            title="Execute SQL"
                           >
-                            <Copy size={12} />
+                            <Play size={12} /> Execute Sql
                           </button>
                         </div>
                         <div className="bg-zinc-900/50 px-3 py-2 rounded border border-zinc-800">

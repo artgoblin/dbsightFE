@@ -39,6 +39,11 @@ export const queryExecutionApi = createApi({
       providesTags: ["QueryExecution"],
     }),
 
+    getSearchedSavedResults: builder.query({
+      query: (search) => `/ask/getsearchedqueries?search=${search}`,
+      providesTags: ["QueryExecution"],
+    }),
+
     executeSql: builder.mutation({
       query: ({ body, offset = 0, limit = 10 }) => ({
         url: `/ask/executesql?offset=${offset}&limit=${limit}`,
@@ -58,4 +63,5 @@ export const {
   useExecuteSqlMutation,
   useDeleteSavedQueryMutation,
   useUpdateQueryMutation,
+  useLazyGetSearchedSavedResultsQuery,
 } = queryExecutionApi;
