@@ -467,25 +467,21 @@ const QueryExecution = () => {
           </div>
         </div>
       </div>
-      {openSaveQueryModal && (
-        <SaveQueryFormPop
-          openSaveQueryModal={openSaveQueryModal}
-          modalTitleRef={modalTitleRef.current}
-          initialValues={editInitialValues.current}
-          setOpenSaveQueryModal={setOpenSaveQueryModal}
-        />
-      )}
-      {openVisualizeModal && (
-        <VisualizePop
-          executionResult={executionResult}
-          openVisualizeModal={openVisualizeModal}
-          setOpenVisualizeModal={setOpenVisualizeModal}
-          handleLoadMore={handleLoadMore}
-          offset={offset}
-          hasMore={hasMore}
-          loading={loading}
-        />
-      )}
+      <SaveQueryFormPop
+        openSaveQueryModal={openSaveQueryModal}
+        modalTitleRef={modalTitleRef.current}
+        initialValues={editInitialValues.current}
+        setOpenSaveQueryModal={setOpenSaveQueryModal}
+      />
+      <VisualizePop
+        executionResult={executionResult}
+        openVisualizeModal={openVisualizeModal}
+        setOpenVisualizeModal={setOpenVisualizeModal}
+        handleLoadMore={handleLoadMore}
+        offset={offset}
+        hasMore={hasMore}
+        loading={loading}
+      />
     </div>
   );
 };

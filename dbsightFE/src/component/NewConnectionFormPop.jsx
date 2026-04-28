@@ -339,7 +339,7 @@ const NewConnectionFormPop = ({
       {errorMessage && (
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={open}
+          open={Boolean(errorMessage)}
           autoHideDuration={6000}
           onClose={() => setErrorMessage("")}
         >

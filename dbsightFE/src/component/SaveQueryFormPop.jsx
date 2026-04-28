@@ -6,6 +6,8 @@ import {
   Modal,
   TextField,
   Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import { X } from "lucide-react";
@@ -276,7 +278,7 @@ const SaveQueryFormPop = ({
       {errorMessage && (
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={open}
+          open={Boolean(errorMessage)}
           autoHideDuration={6000}
           onClose={() => setErrorMessage("")}
         >

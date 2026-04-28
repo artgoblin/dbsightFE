@@ -13,7 +13,6 @@ export const authBaseQuery = fetchBaseQuery({
   },
 });
 
-
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: authBaseQuery,
@@ -25,20 +24,30 @@ export const authApi = createApi({
         method: "POST",
         body: { username, password },
       }),
-      onSuccess: ({data}) => {
+      onSuccess: ({ data }) => {
         localStorage.setItem("token", data.token); // or data.access_token
         localStorage.setItem("user", JSON.stringify(data.user));
       },
     }),
     signup: builder.mutation({
-      query: ({ username,email,password }) => ({
+      query: ({ username, email, password }) => ({
         url: "/auth/signup",
         method: "POST",
-        body: { username,email,password },
+        body: { username, email, password },
       }),
     }),
-    
+    forgotPassword: builder.mutation({
+      query: ({ email }) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: { email },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useSignupMutation } = authApi;
+export const {
+  useLoginMutation,
+  useSignupMutation,
+  useForgotPasswordMutation,
+} = authApi;

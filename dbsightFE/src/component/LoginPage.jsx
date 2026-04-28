@@ -2,10 +2,11 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router";
 import { Database } from "lucide-react"; // or your icon lib
-import { useLoginMutation, useSignupMutation } from "../features/schema/baseQuery";
+import { useForgotPasswordMutation, useLoginMutation, useSignupMutation } from "../features/schema/baseQuery";
 import AutoSlider from "./AutoSlider";
 import LoginPanel from "./LoginPanel";
 import SignUpPanel from "./SignUpPanel";
+import ForgotPasswordPanel from "./ForgotPasswordPanel";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -13,6 +14,7 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [login, { isLoading: isLoginLoading, error: loginError }] = useLoginMutation();
   const [signup, { isLoading: isSignupLoading, error: signupError }] = useSignupMutation();
+  const [forgotPassword, { isLoading: isForgotPasswordLoading, error: forgotPasswordError }] = useForgotPasswordMutation();
   const [panelType, setPanelType] = useState("login");
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,6 +53,16 @@ export const LoginPage = () => {
     }
   };
 
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await forgotPassword({ email }).unwrap();
+      setPanelType("login");
+    } catch (err) {
+      console.error("Forgot password failed:", err);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-zinc-900">
       <div className="flex flex-1 flex-row overflow-hidden">
@@ -70,7 +82,7 @@ export const LoginPage = () => {
               error={loginError}
               setPanelType={setPanelType}
             />
-          ) : (
+          ) : panelType === "signUp" ?(
             <SignUpPanel 
               handleSubmit={handleSignupSubmit}
               setPanelType={setPanelType}
@@ -82,6 +94,15 @@ export const LoginPage = () => {
               setPassword={setPassword}
               isLoading={isSignupLoading}
               error={signupError}
+            />
+          ):(
+            <ForgotPasswordPanel
+              handleSubmit={handleForgotPasswordSubmit}
+              email={email}
+              setEmail={setEmail}
+              error={forgotPasswordError}
+              setPanelType={setPanelType}
+              isLoading={isForgotPasswordLoading}
             />
           )}
         </div>

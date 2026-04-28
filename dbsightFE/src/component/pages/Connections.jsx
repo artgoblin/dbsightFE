@@ -263,12 +263,10 @@ const Connections = () => {
           ))}
         </div>
       </div>
-      {openNewConnectionForm && (
-        <NewConnectionFormPop
-          openNewConnectionForm={openNewConnectionForm}
-          setOpenNewConnectionForm={setOpenNewConnectionForm}
-        />
-      )}
+      <NewConnectionFormPop
+        openNewConnectionForm={openNewConnectionForm}
+        setOpenNewConnectionForm={setOpenNewConnectionForm}
+      />
     </div>
   );
 };
