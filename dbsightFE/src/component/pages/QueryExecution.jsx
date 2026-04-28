@@ -13,6 +13,7 @@ import {
   Share,
   Download,
   Share2,
+  Search,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import Tooltip from "@mui/material/Tooltip";
@@ -419,6 +420,16 @@ const QueryExecution = () => {
             <div className="flex items-center gap-2 text-white font-semibold">
               <Bookmark size={18} />
               <h2>Saved Queries</h2>
+            </div>
+            <div className="relative mt-2">
+              <Search className="absolute left-2 top-3/5 transform -translate-y-1/2 text-zinc-500" size={15} />
+              <input
+                type="text"
+                placeholder="Search by name"
+                //value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-8 pr-2 py-2 mt-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-gray-500 transition"
+              />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
