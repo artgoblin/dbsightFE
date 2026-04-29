@@ -1,9 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authBaseQuery } from "./baseQuery";
+import { baseQueryWithLogout } from "./baseQuery";
 
 export const databaseConnectionApi = createApi({
   reducerPath: "databaseConnectionApi",
-  baseQuery: authBaseQuery,
+  baseQuery: baseQueryWithLogout,
   tagTypes: ["Schema", "DatabaseConnection"],
   endpoints: (builder) => ({
     getDatabaseConnection: builder.query({

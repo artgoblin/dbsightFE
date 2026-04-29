@@ -1,10 +1,10 @@
 // src/features/schema/schemaApi.js
 import { createApi} from "@reduxjs/toolkit/query/react";
-import { authBaseQuery } from "./baseQuery";
+import { baseQueryWithLogout } from "./baseQuery";
 
 export const agentApi = createApi({
   reducerPath: "agentApi",
-  baseQuery: authBaseQuery,
+  baseQuery: baseQueryWithLogout,
   tagTypes: ["AgentApi"],
   endpoints: (builder) => ({
     fetchQueryResponse: builder.mutation({

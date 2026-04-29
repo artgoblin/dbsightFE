@@ -30,10 +30,15 @@ const getSafeArray = (value) => {
 const getColumnConstraints = (columnName, table) => {
   const primaryKeys = getSafeArray(table.primaryKeys);
   const uniqueColumns = getSafeArray(table.uniqueColumns);
+  const foreignKeys = Array.isArray(table.foreignKeys) ? table.foreignKeys : [];
+
+  const fkInfo = foreignKeys.find((f) => f.sourceColumn === columnName);
 
   return {
     isPK: primaryKeys.includes(columnName),
     isUnique: uniqueColumns.includes(columnName),
+    isFK: !!fkInfo,
+    fkInfo,
     primaryKeys,
     uniqueColumns,
   };
@@ -63,8 +68,6 @@ const renderSchemaTree = (schemaData) => {
               return null;
             }
 
-            const { isPK, isUnique } = getColumnConstraints(null, table); // we'll pass col name inside map
-
             return (
               <TreeItem
                 key={`${table.tableName}-${tableIndex}`} // add index for safety
@@ -82,7 +85,7 @@ const renderSchemaTree = (schemaData) => {
                     return null;
                   }
 
-                  const { isPK, isUnique } = getColumnConstraints(
+                  const { isPK, isUnique, isFK, fkInfo } = getColumnConstraints(
                     col.columnName,
                     table,
                   );
@@ -101,6 +104,12 @@ const renderSchemaTree = (schemaData) => {
                           {isUnique && (
                             <div className="text-green-400">Unique Key</div>
                           )}
+                          {isFK && (
+                            <div className="text-blue-300">
+                              Foreign Key: {fkInfo.targetTable}.
+                              {fkInfo.targetColumn}
+                            </div>
+                          )}
                         </div>
                       }
                       placement="right"
@@ -115,10 +124,13 @@ const renderSchemaTree = (schemaData) => {
 
                             <div className="flex items-center gap-1 flex-shrink-0">
                               {isPK && (
-                                <Key className="h-4 w-4 text-red-400 flex-shrink-0" />
+                                <Key className="h-4 w-4 text-orange-400 flex-shrink-0" />
                               )}
                               {isUnique && (
                                 <Key className="h-4 w-4 text-green-400 flex-shrink-0" />
+                              )}
+                              {isFK && (
+                                <Key className="h-4 w-4 text-blue-400 flex-shrink-0" />
                               )}
                             </div>
 

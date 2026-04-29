@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useState } from "react";
 
 import QueryResultGrid from "./QueryResultGrid";
+import ChartVisual from "./ChartVisual";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -124,7 +125,7 @@ const VisualizePop = ({
           </>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          Schema Diagram
+         <ChartVisual queryResult={executionResult} />
         </CustomTabPanel>
       </Box>
     </Modal>

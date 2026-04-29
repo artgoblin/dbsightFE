@@ -13,9 +13,21 @@ export const authBaseQuery = fetchBaseQuery({
   },
 });
 
+export const baseQueryWithLogout = async (args, api, extraOptions) => {
+  let result = await authBaseQuery(args, api, extraOptions);
+  
+  if (result.error && result.error.status === 401) {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  }
+  
+  return result;
+};
+
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: authBaseQuery,
+  baseQuery: baseQueryWithLogout,
   tagTypes: ["Auth"],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -25,7 +37,8 @@ export const authApi = createApi({
         body: { username, password },
       }),
       onSuccess: ({ data }) => {
-        localStorage.setItem("token", data.token); // or data.access_token
+        // Ensure we use 'authToken' consistently
+        localStorage.setItem("authToken", data.token || data.accessToken);
         localStorage.setItem("user", JSON.stringify(data.user));
       },
     }),

@@ -4,35 +4,9 @@ import { Bot, Send, User, Copy, Trash2, Play } from "lucide-react";
 import { useFetchQueryResponseMutation } from "../../features/schema/agentApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
-import { BarChart } from "@mui/x-charts/BarChart";
-import { LineChart } from "@mui/x-charts/LineChart";
-import { PieChart } from "@mui/x-charts/PieChart";
+import ChartVisual from "../ChartVisual";
+import { transformResultToGrid } from "../ui/utils";
 
-const transformResultToGrid = (data) => {
-  if (!data || data.length === 0) return { rows: [], cols: [] };
-
-  // Create columns dynamically from object keys
-  const cols = Object.keys(data[0]).map((key) => ({
-    field: key,
-    headerName: key
-      .replace(/_/g, " ")
-      .replace(/([A-Z])/g, " $1")
-      .trim()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" "),
-    flex: 1,
-    minWidth: 120,
-  }));
-
-  // Add id to each row
-  const rows = data.map((row, index) => ({
-    id: index + 1,
-    ...row,
-  }));
-
-  return { rows, cols };
-};
 const AIChatInterface = () => {
   const { database } = useOutletContext();
 
@@ -365,131 +339,25 @@ const AIChatInterface = () => {
 
                     {msg?.result?.result &&
                       msg?.chartType &&
-                      msg?.chartType !== "none" &&
-                      (() => {
-                        const data = msg.result.result;
-                        if (!data || data.length === 0) return null;
-
-                        const keys = Object.keys(data[0]);
-                        const labelKey = keys[0];
-                        const valueKeys = keys.slice(1).filter((k) => {
-                          const val = data[0][k];
-                          return typeof val === "number" || !isNaN(Number(val));
-                        });
-
-                        if (valueKeys.length === 0) return null;
-
-                        const chartTheme = {
-                          "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
-                            fill: "#a1a1aa",
-                          },
-                          "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
-                            fill: "#a1a1aa",
-                          },
-                          "& .MuiChartsAxis-bottom .MuiChartsAxis-line": {
-                            stroke: "#27272a",
-                          },
-                          "& .MuiChartsAxis-left .MuiChartsAxis-line": {
-                            stroke: "#27272a",
-                          },
-                          "& .MuiChartsLegend-root text": {
-                            fill: "#e4e4e7 !important",
-                          },
-                        };
-
-                        const commonProps = {
-                          height: 300,
-                          margin: { top: 40, right: 20, bottom: 60, left: 60 },
-                          sx: chartTheme,
-                        };
-
-                        return (
-                          <Box
-                            sx={{
-                              mt: 3,
-                              p: 2,
-                              bgcolor: "rgba(255, 255, 255, 0.02)",
-                              borderRadius: 3,
-                              border: "1px solid rgba(255, 255, 255, 0.05)",
-                            }}
-                          >
-                            <div className="text-xs font-medium text-zinc-500 mb-4 uppercase tracking-wider">
-                              Visual Analysis: {msg.chartType} chart
-                            </div>
-                            {msg.chartType === "bar" && (
-                              <BarChart
-                                {...commonProps}
-                                xAxis={[
-                                  {
-                                    data: data.map((d) => String(d[labelKey])),
-                                    scaleType: "band",
-                                    label: labelKey.toUpperCase(),
-                                  },
-                                ]}
-                                series={valueKeys.map((k) => ({
-                                  data: data.map((d) => Number(d[k])),
-                                  label: k.replace(/_/g, " ").toUpperCase(),
-                                }))}
-                              />
-                            )}
-                            {msg.chartType === "line" && (
-                              <LineChart
-                                {...commonProps}
-                                xAxis={[
-                                  {
-                                    data: data.map((d) => String(d[labelKey])),
-                                    scaleType: "point",
-                                    label: labelKey.toUpperCase(),
-                                  },
-                                ]}
-                                series={valueKeys.map((k) => ({
-                                  data: data.map((d) => Number(d[k])),
-                                  label: k.replace(/_/g, " ").toUpperCase(),
-                                  area: true,
-                                }))}
-                              />
-                            )}
-                            {msg.chartType === "pie" && (
-                              <PieChart
-                                height={300}
-                                sx={chartTheme}
-                                series={[
-                                  {
-                                    data: data.map((d, i) => ({
-                                      id: i,
-                                      value: Number(d[valueKeys[0]]),
-                                      label: String(d[labelKey]),
-                                    })),
-                                    innerRadius: 30,
-                                    outerRadius: 100,
-                                    paddingAngle: 5,
-                                    cornerRadius: 5,
-                                  },
-                                ]}
-                              />
-                            )}
-                            {msg.chartType === "scatter" && (
-                              <ScatterChart
-                                height={300}
-                                sx={chartTheme}
-                                series={[
-                                  {
-                                    data: data.map((d, i) => ({
-                                      id: i,
-                                      value: Number(d[valueKeys[0]]),
-                                      label: String(d[labelKey]),
-                                    })),
-                                    innerRadius: 30,
-                                    outerRadius: 100,
-                                    paddingAngle: 5,
-                                    cornerRadius: 5,
-                                  },
-                                ]}
-                              />
-                            )}
-                          </Box>
-                        );
-                      })()}
+                      msg?.chartType !== "none" && (
+                        <Box
+                          sx={{
+                            mt: 3,
+                            p: 1,
+                            bgcolor: "rgba(255, 255, 255, 0.02)",
+                            borderRadius: 3,
+                            border: "1px solid rgba(255, 255, 255, 0.05)",
+                          }}
+                        >
+                          <div className="text-xs font-medium text-zinc-500 mb-2 px-2 uppercase tracking-wider">
+                            Visual Analysis
+                          </div>
+                          <ChartVisual
+                            queryResult={msg.result.result}
+                            initialChartType={msg.chartType}
+                          />
+                        </Box>
+                      )}
                   </div>
                 </div>
               </div>

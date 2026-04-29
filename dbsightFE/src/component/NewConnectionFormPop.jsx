@@ -190,6 +190,7 @@ const NewConnectionFormPop = ({
                     >
                       <MenuItem value="PostgreSQL">PostgreSQL</MenuItem>
                       <MenuItem value="MySQL">MySQL</MenuItem>
+                      <MenuItem value="MariaDB">MariaDB</MenuItem>
                     </Field>
                   </Box>
 

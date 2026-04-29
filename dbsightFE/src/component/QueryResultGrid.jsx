@@ -1,32 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { transformResultToGrid } from "./ui/utils";
 
-export const transformResultToGrid = (data) => {
-  if (!data || data.length === 0) return { rows: [], cols: [] };
 
-  // Create columns dynamically from object keys
-  const cols = Object.keys(data[0]).map((key) => ({
-    field: key,
-    headerName: key
-      .replace(/_/g, " ")
-      .replace(/([A-Z])/g, " $1")
-      .trim()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" "),
-    flex: 1,
-    minWidth: 120,
-  }));
-
-  // Add id to each row
-  const rows = data.map((row, index) => ({
-    id: index + 1,
-    ...row,
-  }));
-
-  return { rows, cols };
-};
 
 const QueryResultGrid = ({
   executionResult,

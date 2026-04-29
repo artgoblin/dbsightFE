@@ -1,10 +1,10 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authBaseQuery } from "./baseQuery";
+import { baseQueryWithLogout } from "./baseQuery";
 
 
 export const queryExecutionApi = createApi({
   reducerPath: "queryExecutionApi",
-  baseQuery: authBaseQuery,
+  baseQuery: baseQueryWithLogout,
   tagTypes: ["QueryExecution"],
   endpoints: (builder) => ({
     getAllQueryCache: builder.query({
