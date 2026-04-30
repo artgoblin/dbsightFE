@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router";
-import { Bot, Send, User, Copy, Trash2, Play } from "lucide-react";
+import { Bot, Send, User, Copy, Trash2, Play, Clock } from "lucide-react";
 import { useFetchQueryResponseMutation } from "../../features/schema/agentApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
@@ -240,7 +240,14 @@ const AIChatInterface = () => {
                         );
 
                         return (
-                          <Box
+                          <>
+                            {msg.result.executionTime !== undefined && (
+                              <div className="text-[10px] text-zinc-500 mb-1 flex items-center gap-1 px-1">
+                                <Clock size={10} />
+                                Executed in {msg.result.executionTime}ms
+                              </div>
+                            )}
+                            <Box
                             sx={{
                               height: 350,
                               width: "100%",
@@ -334,6 +341,7 @@ const AIChatInterface = () => {
                               }}
                             />
                           </Box>
+                        </>
                         );
                       })()}
 

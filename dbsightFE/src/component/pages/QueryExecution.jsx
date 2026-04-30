@@ -97,6 +97,7 @@ const QueryExecution = () => {
   const [open, setOpen] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [openSaveQueryModal, setOpenSaveQueryModal] = useState(false);
+  const [executionTime, setExecutionTime] = useState(null);
   const modalTitleRef = useRef(null);
   const editInitialValues = useRef(null);
   const [openVisualizeModal, setOpenVisualizeModal] = useState(false);
@@ -179,6 +180,7 @@ const QueryExecution = () => {
           res.hasMore !== undefined ? res.hasMore : rows.length === limit,
         );
         setOffset(limit);
+        setExecutionTime(res.executionTime);
         if (res.error?.code === "error" && res.error.message.length > 0) {
           throw new Error(res.error.message);
         }
@@ -210,6 +212,7 @@ const QueryExecution = () => {
         res.hasMore !== undefined ? res.hasMore : newRows.length === limit,
       );
       setOffset((prev) => prev + limit);
+      setExecutionTime(res.executionTime);
     } catch (err) {
       console.error(err);
     } finally {
@@ -381,6 +384,17 @@ const QueryExecution = () => {
         <div className="flex-1 bg-zinc-950 border-t border-zinc-800 overflow-hidden flex flex-col">
           {executionResult ? (
             <>
+              <div className="px-4 py-2 border-b border-zinc-800 bg-zinc-900/50 flex justify-between items-center text-xs text-zinc-400">
+                <div className="flex gap-4">
+                  <span>{allRows.length} rows</span>
+                  {executionTime !== null && (
+                    <span className="flex items-center gap-1">
+                      <Clock size={12} />
+                      {executionTime}ms
+                    </span>
+                  )}
+                </div>
+              </div>
               <QueryResultGrid
                 executionResult={executionResult}
                 handleLoadMore={handleLoadMore}
