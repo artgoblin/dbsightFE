@@ -2,7 +2,7 @@ import { fetchBaseQuery, createApi } from "@reduxjs/toolkit/query/react";
 import { Navigate } from "react-router";
 
 export const authBaseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:8080",
+  baseUrl: "http://178.104.129.87:8080",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("authToken");
     if (token) {
