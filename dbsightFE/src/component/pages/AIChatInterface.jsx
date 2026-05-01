@@ -5,7 +5,7 @@ import { useFetchQueryResponseMutation } from "../../features/schema/agentApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button as MuiButton } from "@mui/material";
 import ChartVisual from "../ChartVisual";
-import { transformResultToGrid } from "../ui/utils";
+import { transformResultToGrid, extractSchema } from "../ui/utils";
 
 const AIChatInterface = () => {
   const { database } = useOutletContext();
@@ -357,7 +357,8 @@ const AIChatInterface = () => {
                       Array.isArray(msg.result.result) &&
                       msg.result.result.length > 0 &&
                       msg?.chartType &&
-                      msg?.chartType !== "none" && (
+                      msg?.chartType !== "none" &&
+                      extractSchema(msg.result.result).numericCols.length > 0 && (
                         <Box
                           sx={{
                             mt: 3,
