@@ -15,13 +15,16 @@ export const authBaseQuery = fetchBaseQuery({
 
 export const baseQueryWithLogout = async (args, api, extraOptions) => {
   let result = await authBaseQuery(args, api, extraOptions);
-  
-  if (result.error && result.error.status === 401) {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
+
+  // Auto logout on 401 (Unauthorized) or 403 (Forbidden/Token Expired)
+  if (
+    result.error &&
+    (result.error.status === 401 || result.error.status === 403)
+  ) {
+    localStorage.clear(); // Clear all data to ensure a clean state
     window.location.href = "/login";
   }
-  
+
   return result;
 };
 

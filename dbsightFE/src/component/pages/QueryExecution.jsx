@@ -163,12 +163,12 @@ const QueryExecution = () => {
         ? selectedQuery
         : tabContents[activeTabId];
 
-    // Restricted query check for Adventureworks database
-    if (database === "Adventureworks") {
+    // Restricted query check for Adventureworks database (case-insensitive)
+    if (database?.toLowerCase() === "adventureworks") {
       const isRestricted = /\b(DROP|DELETE|ALTER)\b/i.test(finalQuery);
       if (isRestricted) {
         setErrorMessage(
-          "DROP, DELETE, and ALTER queries are not allowed on the Adventureworks database."
+          "DROP, DELETE, and ALTER queries are not permitted on the Adventureworks database."
         );
         setExecutionResult(null);
         setOpen(true);
