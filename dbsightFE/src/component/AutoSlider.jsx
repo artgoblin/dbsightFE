@@ -16,6 +16,11 @@ const AutoSlider = () => {
       desc: "Execute queries with instant results and pagination.",
     },
     {
+      image: "/assets/visualize.png",
+      title: "Visualize Data",
+      desc: "Create beautiful charts and graphs from your data.",
+    },
+    {
       image: "/assets/connections.png",
       title: "Manage Connections",
       desc: "Securely connect to multiple databases in seconds.",

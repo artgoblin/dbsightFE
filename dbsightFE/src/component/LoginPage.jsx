@@ -47,7 +47,6 @@ export const LoginPage = () => {
     e.preventDefault();
     try {
       await signup({ username, email, password }).unwrap();
-      setPanelType("login");
     } catch (err) {
       console.error("Signup failed:", err);
     }
