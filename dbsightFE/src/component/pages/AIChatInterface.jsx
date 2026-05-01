@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router";
-import { Bot, Send, User, Copy, Trash2, Play, Clock } from "lucide-react";
+import { Bot, Send, User, Copy, Trash2, Play, Clock, AlertTriangle } from "lucide-react";
 import { useFetchQueryResponseMutation } from "../../features/schema/agentApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button as MuiButton } from "@mui/material";
@@ -434,41 +434,79 @@ const AIChatInterface = () => {
         onClose={() => setIsClearChatDialogOpen(false)}
         PaperProps={{
           sx: {
-            bgcolor: "#1c1c1c",
+            bgcolor: "#09090b",
             color: "white",
-            borderRadius: "12px",
+            borderRadius: "16px",
             border: "1px solid #27272a",
+            backgroundImage: "none",
+            p: 1,
+            maxWidth: "400px",
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 700, fontSize: "1.25rem" }}>
-          Clear Chat History?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ color: "#a1a1aa" }}>
-            This will permanently delete all messages in this conversation. This
-            action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, pt: 3 }}>
+          <Box sx={{ 
+            bgcolor: "rgba(239, 68, 68, 0.1)", 
+            p: 2, 
+            borderRadius: "50%", 
+            mb: 2,
+            border: "1px solid rgba(239, 68, 68, 0.2)"
+          }}>
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </Box>
+          <DialogTitle sx={{ 
+            fontWeight: 800, 
+            fontSize: "1.5rem", 
+            textAlign: "center",
+            p: 0,
+            mb: 1,
+            color: "#ffffff"
+          }}>
+            Clear Chat?
+          </DialogTitle>
+          <DialogContent sx={{ pb: 0 }}>
+            <DialogContentText sx={{ 
+              color: "#a1a1aa", 
+              textAlign: "center",
+              fontSize: "0.95rem",
+              lineHeight: 1.5
+            }}>
+              This will permanently delete all messages in this conversation. This
+              action cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+        </Box>
+        <DialogActions sx={{ p: 3, pt: 2, gap: 1.5 }}>
           <MuiButton
             onClick={() => setIsClearChatDialogOpen(false)}
-            sx={{ color: "#a1a1aa", textTransform: "none" }}
+            fullWidth
+            sx={{ 
+              color: "#ffffff", 
+              textTransform: "none",
+              fontWeight: 600,
+              bgcolor: "#27272a",
+              borderRadius: "10px",
+              py: 1.2,
+              "&:hover": { bgcolor: "#3f3f46" }
+            }}
           >
             Cancel
           </MuiButton>
           <MuiButton
             onClick={handleConfirmClearChat}
             variant="contained"
-            color="error"
+            fullWidth
             sx={{
-              bgcolor: "#d32f2f",
+              bgcolor: "#ef4444",
               textTransform: "none",
-              borderRadius: "8px",
-              "&:hover": { bgcolor: "#b71c1c" },
+              fontWeight: 600,
+              borderRadius: "10px",
+              py: 1.2,
+              "&:hover": { bgcolor: "#dc2626" },
+              boxShadow: "0 4px 12px rgba(239, 68, 68, 0.25)"
             }}
           >
-            Clear Chat
+            Clear All
           </MuiButton>
         </DialogActions>
       </Dialog>
