@@ -11,12 +11,14 @@ import {
   useDeleteDatabaseConnectionMutation,
   useReconnectDatabaseMutation,
 } from "../../features/schema/databaseConnectionApi";
-import { Tooltip } from "@mui/material";
+import { Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 const Connections = () => {
   const { data, refetch, isLoading, isError } = useGetDatabaseConnectionQuery();
   const [openNewConnectionForm, setOpenNewConnectionForm] = useState(false);
   const [deleteDatabaseConnection] = useDeleteDatabaseConnectionMutation();
   const [reconnectDatabase] = useReconnectDatabaseMutation();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [dbToDelete, setDbToDelete] = useState(null);
 
   console.log(data);
   const handleAddNewButtonClick = () => {
@@ -31,14 +33,26 @@ const Connections = () => {
       console.error("Failed to reconnect database:", error);
     }
   };
-  const handleDelete = async (databaseName) => {
-    try {
-      await deleteDatabaseConnection(databaseName).unwrap();
-      refetch();
-    } catch (error) {
-      console.error("Failed to delete database connection:", error);
+
+  const handleDeleteClick = (databaseName) => {
+    setDbToDelete(databaseName);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (dbToDelete) {
+      try {
+        await deleteDatabaseConnection(dbToDelete).unwrap();
+        refetch();
+      } catch (error) {
+        console.error("Failed to delete database connection:", error);
+      } finally {
+        setIsDeleteDialogOpen(false);
+        setDbToDelete(null);
+      }
     }
   };
+
   return (
     <div className="flex flex-col h-screen bg-black text-white">
       {/* Header Section */}
@@ -238,7 +252,7 @@ const Connections = () => {
                   startIcon={<Trash />}
                   disabled={item.database_name === "Adventureworks"}
                   onClick={() => {
-                    handleDelete(item.database_name);
+                    handleDeleteClick(item.database_name);
                   }}
                   sx={{
                     flex: "1 1 auto",
@@ -267,6 +281,50 @@ const Connections = () => {
         openNewConnectionForm={openNewConnectionForm}
         setOpenNewConnectionForm={setOpenNewConnectionForm}
       />
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            bgcolor: "#1c1c1c",
+            color: "white",
+            borderRadius: "12px",
+            border: "1px solid #27272a",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontSize: "1.25rem" }}>
+          Delete Connection?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "#a1a1aa" }}>
+            Are you sure you want to delete the connection to{" "}
+            <span className="text-white font-bold">{dbToDelete}</span>? This
+            action cannot be undone and will remove all associated settings.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <Button
+            onClick={() => setIsDeleteDialogOpen(false)}
+            sx={{ color: "#a1a1aa", textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            variant="contained"
+            color="error"
+            sx={{
+              bgcolor: "#d32f2f",
+              textTransform: "none",
+              borderRadius: "8px",
+              "&:hover": { bgcolor: "#b71c1c" },
+            }}
+          >
+            Delete Connection
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

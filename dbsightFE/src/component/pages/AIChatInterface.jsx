@@ -3,7 +3,7 @@ import { useOutletContext, useNavigate } from "react-router";
 import { Bot, Send, User, Copy, Trash2, Play, Clock } from "lucide-react";
 import { useFetchQueryResponseMutation } from "../../features/schema/agentApi";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box } from "@mui/material";
+import { Box, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button as MuiButton } from "@mui/material";
 import ChartVisual from "../ChartVisual";
 import { transformResultToGrid } from "../ui/utils";
 
@@ -29,6 +29,7 @@ const AIChatInterface = () => {
   const [input, setInput] = useState("");
   const [fetchQueryResponse, { isLoading }] = useFetchQueryResponseMutation();
   const messagesEndRef = useRef(null);
+  const [isClearChatDialogOpen, setIsClearChatDialogOpen] = useState(false);
 
   //Save to localStorage whenever messages change
   useEffect(() => {
@@ -98,8 +99,13 @@ const AIChatInterface = () => {
   };
 
   const clearChat = () => {
+    setIsClearChatDialogOpen(true);
+  };
+
+  const handleConfirmClearChat = () => {
     setMessages([]);
     localStorage.removeItem(STORAGE_KEY);
+    setIsClearChatDialogOpen(false);
   };
 
   const handleExecuteSql = (sqlQuery) => {
@@ -421,6 +427,50 @@ const AIChatInterface = () => {
           </p>
         </div>
       </div>
+
+      <Dialog
+        open={isClearChatDialogOpen}
+        onClose={() => setIsClearChatDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            bgcolor: "#1c1c1c",
+            color: "white",
+            borderRadius: "12px",
+            border: "1px solid #27272a",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontSize: "1.25rem" }}>
+          Clear Chat History?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "#a1a1aa" }}>
+            This will permanently delete all messages in this conversation. This
+            action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <MuiButton
+            onClick={() => setIsClearChatDialogOpen(false)}
+            sx={{ color: "#a1a1aa", textTransform: "none" }}
+          >
+            Cancel
+          </MuiButton>
+          <MuiButton
+            onClick={handleConfirmClearChat}
+            variant="contained"
+            color="error"
+            sx={{
+              bgcolor: "#d32f2f",
+              textTransform: "none",
+              borderRadius: "8px",
+              "&:hover": { bgcolor: "#b71c1c" },
+            }}
+          >
+            Clear Chat
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
