@@ -233,11 +233,13 @@ const AIChatInterface = () => {
                         </div>
                       </div>
                     )}
-                    {msg?.result?.result &&
+                    {msg?.result?.result && Array.isArray(msg.result.result) && msg.result.result.length > 0 &&
                       (() => {
                         const { rows, cols } = transformResultToGrid(
                           msg.result.result,
                         );
+
+                        if (rows.length === 0) return null;
 
                         return (
                           <>
@@ -346,6 +348,8 @@ const AIChatInterface = () => {
                       })()}
 
                     {msg?.result?.result &&
+                      Array.isArray(msg.result.result) &&
+                      msg.result.result.length > 0 &&
                       msg?.chartType &&
                       msg?.chartType !== "none" && (
                         <Box
