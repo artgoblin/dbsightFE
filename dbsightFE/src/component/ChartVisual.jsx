@@ -28,39 +28,76 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
   const schema = useMemo(() => extractSchema(queryResult), [queryResult]);
   const data = queryResult || [];
 
-  // Auto-select axes if not set
-  useMemo(() => {
-    if (!config.xAxis && schema.columns.length > 0) {
-      setConfig((prev) => ({ ...prev, xAxis: schema.columns[0] }));
+  // Auto-select and validate axes when schema or data changes
+  useEffect(() => {
+    if (schema.columns.length > 0) {
+      const newConfig = { ...config };
+      let changed = false;
+
+      // If current xAxis is invalid or not set, pick the first column
+      if (!config.xAxis || !schema.columns.includes(config.xAxis)) {
+        newConfig.xAxis = schema.columns[0];
+        changed = true;
+      }
+
+      // If current yAxis is invalid or not set, pick the first numeric column
+      if (!config.yAxis || !schema.numericCols.includes(config.yAxis)) {
+        if (schema.numericCols.length > 0) {
+          newConfig.yAxis = schema.numericCols[0];
+        } else if (schema.columns.length > 1) {
+          // Fallback to second column if no numeric columns found
+          newConfig.yAxis = schema.columns[1];
+        }
+        changed = true;
+      }
+
+      if (changed) {
+        setConfig(newConfig);
+      }
     }
-    if (!config.yAxis && schema.numericCols.length > 0) {
-      setConfig((prev) => ({ ...prev, yAxis: schema.numericCols[0] }));
-    }
-  }, [schema]);
+  }, [schema, config.xAxis, config.yAxis]);
 
   const handleDownloadImage = () => {
     if (!chartRef.current) return;
     const svg = chartRef.current.querySelector("svg");
     if (!svg) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
+    // Get the actual dimensions of the SVG
+    const bounds = svg.getBoundingClientRect();
+    const width = bounds.width;
+    const height = bounds.height;
+
+    // Clone the SVG and set explicit dimensions
+    // This is crucial because if the SVG has width="100%", the Image loader 
+    // won't know how to size it correctly from a Blob.
+    const clonedSvg = svg.cloneNode(true);
+    clonedSvg.setAttribute("width", width);
+    clonedSvg.setAttribute("height", height);
+
+    const svgData = new XMLSerializer().serializeToString(clonedSvg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
     
-    // Add some padding and background to the exported image
     const svgBlob = new Blob([svgData], {
       type: "image/svg+xml;charset=utf-8",
     });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      canvas.width = img.width * 2; // High resolution
-      canvas.height = img.height * 2;
+      // Use 2x scaling for high quality
+      canvas.width = width * 2;
+      canvas.height = height * 2;
       ctx.scale(2, 2);
+      
+      // Fill background (same as the chart container)
       ctx.fillStyle = "#18181b"; // zinc-900 background
-      ctx.fillRect(0, 0, img.width, img.height);
-      ctx.drawImage(img, 0, 0);
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw the SVG image onto the canvas
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Cleanup
       URL.revokeObjectURL(url);
       
       const pngUrl = canvas.toDataURL("image/png");
@@ -71,6 +108,13 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
       downloadLink.click();
       document.body.removeChild(downloadLink);
     };
+
+    // If there's an error loading the image
+    img.onerror = () => {
+      console.error("Failed to load SVG for image export");
+      URL.revokeObjectURL(url);
+    };
+
     img.src = url;
   };
 
@@ -156,9 +200,12 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
 
     const commonProps = {
       height: 350,
+      width: 1100,
       margin: { top: 40, right: 20, bottom: 60, left: 60 },
       sx: chartTheme,
     };
+
+    const chartData = data.slice(0, 50); // Limit to 50 points for better performance/visibility
 
     switch (config.chartType) {
       case "BAR":
@@ -167,14 +214,17 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
             {...commonProps}
             xAxis={[
               {
-                data: data.map((d) => String(d[config.xAxis])),
+                data: chartData.map((d) => String(d[config.xAxis] ?? "N/A")),
                 scaleType: "band",
                 label: config.xAxis.toUpperCase(),
               },
             ]}
             series={[
               {
-                data: data.map((d) => Number(d[config.yAxis])),
+                data: chartData.map((d) => {
+                  const val = Number(d[config.yAxis]);
+                  return isNaN(val) ? 0 : val;
+                }),
                 label: config.yAxis.replace(/_/g, " ").toUpperCase(),
                 color: "#3b82f6",
               },
@@ -187,14 +237,17 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
             {...commonProps}
             xAxis={[
               {
-                data: data.map((d) => String(d[config.xAxis])),
+                data: chartData.map((d) => String(d[config.xAxis] ?? "N/A")),
                 scaleType: "point",
                 label: config.xAxis.toUpperCase(),
               },
             ]}
             series={[
               {
-                data: data.map((d) => Number(d[config.yAxis])),
+                data: chartData.map((d) => {
+                  const val = Number(d[config.yAxis]);
+                  return isNaN(val) ? 0 : val;
+                }),
                 label: config.yAxis.replace(/_/g, " ").toUpperCase(),
                 color: "#10b981",
                 area: true,
@@ -206,20 +259,23 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
         return (
           <PieChart
             height={320}
-            width={340}
+            width={1100}
             sx={chartTheme}
             series={[
               {
-                data: data.slice(0, 10).map((d, i) => ({
-                  id: i,
-                  value: Number(d[config.yAxis || schema.numericCols[0]]),
-                  label: String(d[config.xAxis]),
-                })),
+                data: chartData.slice(0, 10).map((d, i) => {
+                  const val = Number(d[config.yAxis || schema.numericCols[0]]);
+                  return {
+                    id: i,
+                    value: isNaN(val) ? 0 : val,
+                    label: String(d[config.xAxis] ?? `Item ${i}`),
+                  };
+                }),
                 innerRadius: 60,
                 outerRadius: 100,
                 paddingAngle: 5,
                 cornerRadius: 8,
-                cx: 150,
+                cx: "50%",
               },
             ]}
             slotProps={{
@@ -237,11 +293,15 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
             {...commonProps}
             series={[
               {
-                data: data.map((d, i) => ({
-                  x: Number(d[config.xAxis]),
-                  y: Number(d[config.yAxis]),
-                  id: i,
-                })),
+                data: chartData.map((d, i) => {
+                  const xVal = Number(d[config.xAxis]);
+                  const yVal = Number(d[config.yAxis]);
+                  return {
+                    x: isNaN(xVal) ? 0 : xVal,
+                    y: isNaN(yVal) ? 0 : yVal,
+                    id: i,
+                  };
+                }),
                 label: `${config.yAxis} vs ${config.xAxis}`,
                 color: "#f59e0b",
               },

@@ -64,4 +64,6 @@ export const {
   useDeleteSavedQueryMutation,
   useUpdateQueryMutation,
   useLazyGetSearchedSavedResultsQuery,
+  useGetSearchedSavedResultsQuery,
+
 } = queryExecutionApi;
