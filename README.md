@@ -59,6 +59,6 @@ Provides a UI where users can:
 
 ### 1. Clone Repo
 
-git clone https://github.com/your-username/dbsight-fe.git
-cd dbsight-fe
-npm install
+git clone https://github.com/your-username/dbsight-fe.git /n
+cd dbsight-fe/n
+npm install/n
