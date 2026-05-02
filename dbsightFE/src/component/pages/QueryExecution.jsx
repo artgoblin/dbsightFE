@@ -245,16 +245,24 @@ const QueryExecution = () => {
     document.body.removeChild(element);
   };
 
-  const handleSearch = debounce((e)=>{
-    const searchTerm = e.target.value;
-    if (searchTerm.length > 0) {
-      getSearchedSavedResults(searchTerm)
-        .unwrap()
-        .then((res) => setSavedQuerySearchResponse(res));
-    } else {
-      setSavedQuerySearchResponse(null);
-    }
-  },500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchTerm) => {
+        if (searchTerm.length > 0) {
+          getSearchedSavedResults(searchTerm)
+            .unwrap()
+            .then((res) => setSavedQuerySearchResponse(res));
+        } else {
+          setSavedQuerySearchResponse(null);
+        }
+      }, 500),
+    [getSearchedSavedResults]
+  );
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    debouncedSearch(value);
+  };
 
   const handleSaveQuery = () => {
     modalTitleRef.current = "Save Query";
@@ -273,6 +281,12 @@ const QueryExecution = () => {
       .then(() => {
         setOpen(true);
         setErrorMessage("Query deleted successfully");
+        // Update local search results if active to avoid showing deleted item
+        if (savedQuerySearchResponse) {
+          setSavedQuerySearchResponse((prev) =>
+            prev ? prev.filter((item) => item.id !== id) : null
+          );
+        }
       })
       .catch((err) => {
         console.error(err);
