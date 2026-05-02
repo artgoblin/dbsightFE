@@ -377,6 +377,8 @@ const AIChatInterface = () => {
                             border: "1px solid rgba(255, 255, 255, 0.05)",
                             overflow: "hidden",
                             width: "100%",
+                            maxWidth: "100%",
+                            minWidth: 0,
                           }}
                         >
                           <div className="text-xs font-medium text-zinc-500 mb-2 px-2 uppercase tracking-wider">
