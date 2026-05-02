@@ -3,7 +3,7 @@
 
 # 🔹 **README 2 — Frontend (dbsight-fe)**
 
-```md
+```
 # DBSight Frontend ⚡
 
 Frontend for DBSight — an AI-powered interface to query databases using natural language.
