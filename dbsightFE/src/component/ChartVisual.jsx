@@ -68,11 +68,39 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
     const height = bounds.height;
 
     // Clone the SVG and set explicit dimensions
-    // This is crucial because if the SVG has width="100%", the Image loader 
-    // won't know how to size it correctly from a Blob.
     const clonedSvg = svg.cloneNode(true);
     clonedSvg.setAttribute("width", width);
     clonedSvg.setAttribute("height", height);
+
+    // Inline all computed styles from the original SVG into the clone.
+    // When the SVG is serialized to a Blob, CSS class-based styles are lost,
+    // causing fills, strokes, and text colors to disappear (blank image).
+    const inlineStyles = (originalEl, clonedEl) => {
+      const computed = window.getComputedStyle(originalEl);
+      const stylesToCopy = [
+        "fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap",
+        "stroke-linejoin", "opacity", "fill-opacity", "stroke-opacity",
+        "font-family", "font-size", "font-weight", "font-style",
+        "text-anchor", "dominant-baseline", "letter-spacing",
+        "color", "visibility", "display", "transform",
+      ];
+      stylesToCopy.forEach((prop) => {
+        const val = computed.getPropertyValue(prop);
+        if (val) {
+          clonedEl.style.setProperty(prop, val);
+        }
+      });
+
+      const origChildren = originalEl.children;
+      const clonedChildren = clonedEl.children;
+      for (let i = 0; i < origChildren.length; i++) {
+        if (clonedChildren[i]) {
+          inlineStyles(origChildren[i], clonedChildren[i]);
+        }
+      }
+    };
+
+    inlineStyles(svg, clonedSvg);
 
     const svgData = new XMLSerializer().serializeToString(clonedSvg);
     const canvas = document.createElement("canvas");
