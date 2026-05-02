@@ -164,10 +164,10 @@ const Connections = () => {
                     }}
                   >
                     <span className="font-bold text-sm text-zinc-400">
-                      username
+                      database name
                     </span>
                     <span className="text-zinc-100 text-sm">
-                      {item.username}
+                      {item.databaseName}
                     </span>
                   </Typography>
                   <Typography
