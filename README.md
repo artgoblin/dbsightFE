@@ -1,16 +1,64 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+# 🔹 **README 2 — Frontend (dbsight-fe)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```md
+# DBSight Frontend ⚡
 
-## React Compiler
+Frontend for DBSight — an AI-powered interface to query databases using natural language.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Built with React + Vite and deployed on Vercel.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🧠 What This Does
+
+Provides a UI where users can:
+- Enter natural language queries
+- View generated SQL
+- See results in table format
+- Handle errors & rate limits
+- Interact with backend APIs seamlessly
+
+---
+
+## 🛠️ Tech Stack
+
+- React (Vite)
+- Tailwind CSS
+- MUI
+- react RTK (API calls)
+- Vercel (Deployment)
+
+---
+
+## 🎯 Features
+
+### 🔹 AI Query Interface
+- Input box for natural language
+- Sends prompt to backend
+- Displays SQL + results
+
+### 🔹 Error Handling
+- Handles:
+  - API failures
+  - Rate limits
+  - Invalid queries
+
+### 🔹 Clean UI
+- Minimal distraction
+- Focused on productivity
+
+### 🔹 Backend Proxying
+- Routes `/api/*` to backend VPS
+
+---
+
+## ⚙️ Setup
+
+### 1. Clone Repo
+```bash
+git clone https://github.com/your-username/dbsight-fe.git
+cd dbsight-fe
+npm install
