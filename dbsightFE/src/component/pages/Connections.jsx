@@ -167,7 +167,7 @@ const Connections = () => {
                       database name
                     </span>
                     <span className="text-zinc-100 text-sm">
-                      {item.databaseName}
+                      {item.database_name}
                     </span>
                   </Typography>
                   <Typography
