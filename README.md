@@ -61,3 +61,6 @@ git clone https://github.com/your-username/dbsight-fe.git
 cd dbsight-fe
 
 npm install
+
+npm run dev
+
