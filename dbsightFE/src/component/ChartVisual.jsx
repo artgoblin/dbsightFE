@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import html2canvas from "html2canvas";
 import {
   Box,
   MenuItem,
@@ -57,93 +58,21 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
     }
   }, [schema, config.xAxis, config.yAxis]);
 
-  const handleDownloadImage = () => {
+  const handleDownloadImage = async () => {
     if (!chartRef.current) return;
-    const svg = chartRef.current.querySelector("svg");
-    if (!svg) return;
-
-    // Get the actual dimensions of the SVG
-    const bounds = svg.getBoundingClientRect();
-    const width = bounds.width;
-    const height = bounds.height;
-
-    // Clone the SVG and set explicit dimensions
-    const clonedSvg = svg.cloneNode(true);
-    clonedSvg.setAttribute("width", width);
-    clonedSvg.setAttribute("height", height);
-
-    // Inline all computed styles from the original SVG into the clone.
-    // When the SVG is serialized to a Blob, CSS class-based styles are lost,
-    // causing fills, strokes, and text colors to disappear (blank image).
-    const inlineStyles = (originalEl, clonedEl) => {
-      const computed = window.getComputedStyle(originalEl);
-      const stylesToCopy = [
-        "fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap",
-        "stroke-linejoin", "opacity", "fill-opacity", "stroke-opacity",
-        "font-family", "font-size", "font-weight", "font-style",
-        "text-anchor", "dominant-baseline", "letter-spacing",
-        "color", "visibility", "display", "transform",
-      ];
-      stylesToCopy.forEach((prop) => {
-        const val = computed.getPropertyValue(prop);
-        if (val) {
-          clonedEl.style.setProperty(prop, val);
-        }
+    try {
+      const canvas = await html2canvas(chartRef.current, {
+        backgroundColor: "#18181b",
+        scale: 2, // 2x for high-quality/retina output
+        useCORS: true,
       });
-
-      const origChildren = originalEl.children;
-      const clonedChildren = clonedEl.children;
-      for (let i = 0; i < origChildren.length; i++) {
-        if (clonedChildren[i]) {
-          inlineStyles(origChildren[i], clonedChildren[i]);
-        }
-      }
-    };
-
-    inlineStyles(svg, clonedSvg);
-
-    const svgData = new XMLSerializer().serializeToString(clonedSvg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    
-    const svgBlob = new Blob([svgData], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const url = URL.createObjectURL(svgBlob);
-
-    img.onload = () => {
-      // Use 2x scaling for high quality
-      canvas.width = width * 2;
-      canvas.height = height * 2;
-      ctx.scale(2, 2);
-      
-      // Fill background (same as the chart container)
-      ctx.fillStyle = "#18181b"; // zinc-900 background
-      ctx.fillRect(0, 0, width, height);
-      
-      // Draw the SVG image onto the canvas
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Cleanup
-      URL.revokeObjectURL(url);
-      
-      const pngUrl = canvas.toDataURL("image/png");
-      const downloadLink = document.createElement("a");
-      downloadLink.href = pngUrl;
-      downloadLink.download = `chart-${config.chartType.toLowerCase()}.png`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    };
-
-    // If there's an error loading the image
-    img.onerror = () => {
-      console.error("Failed to load SVG for image export");
-      URL.revokeObjectURL(url);
-    };
-
-    img.src = url;
+      const link = document.createElement("a");
+      link.download = `chart-${config.chartType.toLowerCase()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("Failed to capture chart screenshot:", err);
+    }
   };
 
   const handleDownloadCSV = () => {
