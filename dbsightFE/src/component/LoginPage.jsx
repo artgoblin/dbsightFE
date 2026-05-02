@@ -7,6 +7,7 @@ import AutoSlider from "./AutoSlider";
 import LoginPanel from "./LoginPanel";
 import SignUpPanel from "./SignUpPanel";
 import ForgotPasswordPanel from "./ForgotPasswordPanel";
+import { Snackbar, Alert } from "@mui/material";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -16,6 +17,11 @@ export const LoginPage = () => {
   const [signup, { isLoading: isSignupLoading, error: signupError }] = useSignupMutation();
   const [forgotPassword, { isLoading: isForgotPasswordLoading, error: forgotPasswordError }] = useForgotPasswordMutation();
   const [panelType, setPanelType] = useState("login");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,6 +30,15 @@ export const LoginPage = () => {
     setPassword("");
     setEmail("");
   }, [panelType]);
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const showMessage = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   const from = location.state?.from || "/";
 
@@ -47,19 +62,25 @@ export const LoginPage = () => {
     e.preventDefault();
     try {
       await signup({ username, email, password }).unwrap();
+      showMessage("Account created successfully! Please login.", "success");
       setPanelType("login");
     } catch (err) {
       console.error("Signup failed:", err);
+      const errorMsg = err?.data?.message || "Signup failed. Please try again.";
+      showMessage(errorMsg, "error");
     }
   };
 
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
     try {
-      await forgotPassword({ email }).unwrap();
+      const result = await forgotPassword({ email }).unwrap();
+      showMessage(result.message || "Password reset link sent to your email", "success");
       setPanelType("login");
     } catch (err) {
       console.error("Forgot password failed:", err);
+      const errorMsg = err?.data?.message || "Failed to process request. Please try again.";
+      showMessage(errorMsg, "error");
     }
   };
 
@@ -113,6 +134,22 @@ export const LoginPage = () => {
           © 2026 artgoblin's Work • Smart DB Tool
         </p>
       </footer>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%", borderRadius: "10px" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
