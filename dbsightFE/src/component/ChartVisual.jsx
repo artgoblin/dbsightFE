@@ -43,24 +43,42 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
     const svg = chartRef.current.querySelector("svg");
     if (!svg) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
+    // Get the actual dimensions of the SVG
+    const bounds = svg.getBoundingClientRect();
+    const width = bounds.width;
+    const height = bounds.height;
+
+    // Clone the SVG and set explicit dimensions
+    // This is crucial because if the SVG has width="100%", the Image loader 
+    // won't know how to size it correctly from a Blob.
+    const clonedSvg = svg.cloneNode(true);
+    clonedSvg.setAttribute("width", width);
+    clonedSvg.setAttribute("height", height);
+
+    const svgData = new XMLSerializer().serializeToString(clonedSvg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
     
-    // Add some padding and background to the exported image
     const svgBlob = new Blob([svgData], {
       type: "image/svg+xml;charset=utf-8",
     });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      canvas.width = img.width * 2; // High resolution
-      canvas.height = img.height * 2;
+      // Use 2x scaling for high quality
+      canvas.width = width * 2;
+      canvas.height = height * 2;
       ctx.scale(2, 2);
+      
+      // Fill background (same as the chart container)
       ctx.fillStyle = "#18181b"; // zinc-900 background
-      ctx.fillRect(0, 0, img.width, img.height);
-      ctx.drawImage(img, 0, 0);
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw the SVG image onto the canvas
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Cleanup
       URL.revokeObjectURL(url);
       
       const pngUrl = canvas.toDataURL("image/png");
@@ -71,6 +89,13 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
       downloadLink.click();
       document.body.removeChild(downloadLink);
     };
+
+    // If there's an error loading the image
+    img.onerror = () => {
+      console.error("Failed to load SVG for image export");
+      URL.revokeObjectURL(url);
+    };
+
     img.src = url;
   };
 
