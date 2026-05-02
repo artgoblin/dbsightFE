@@ -3,7 +3,7 @@
 
 # 🔹 **README 2 — Frontend (dbsight-fe)**
 
-```
+
 # DBSight Frontend ⚡
 
 Frontend for DBSight — an AI-powered interface to query databases using natural language.
@@ -58,7 +58,7 @@ Provides a UI where users can:
 ## ⚙️ Setup
 
 ### 1. Clone Repo
-```bash
+
 git clone https://github.com/your-username/dbsight-fe.git
 cd dbsight-fe
 npm install
