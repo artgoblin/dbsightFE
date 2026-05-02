@@ -28,15 +28,34 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
   const schema = useMemo(() => extractSchema(queryResult), [queryResult]);
   const data = queryResult || [];
 
-  // Auto-select axes if not set
-  useMemo(() => {
-    if (!config.xAxis && schema.columns.length > 0) {
-      setConfig((prev) => ({ ...prev, xAxis: schema.columns[0] }));
+  // Auto-select and validate axes when schema or data changes
+  useEffect(() => {
+    if (schema.columns.length > 0) {
+      const newConfig = { ...config };
+      let changed = false;
+
+      // If current xAxis is invalid or not set, pick the first column
+      if (!config.xAxis || !schema.columns.includes(config.xAxis)) {
+        newConfig.xAxis = schema.columns[0];
+        changed = true;
+      }
+
+      // If current yAxis is invalid or not set, pick the first numeric column
+      if (!config.yAxis || !schema.numericCols.includes(config.yAxis)) {
+        if (schema.numericCols.length > 0) {
+          newConfig.yAxis = schema.numericCols[0];
+        } else if (schema.columns.length > 1) {
+          // Fallback to second column if no numeric columns found
+          newConfig.yAxis = schema.columns[1];
+        }
+        changed = true;
+      }
+
+      if (changed) {
+        setConfig(newConfig);
+      }
     }
-    if (!config.yAxis && schema.numericCols.length > 0) {
-      setConfig((prev) => ({ ...prev, yAxis: schema.numericCols[0] }));
-    }
-  }, [schema]);
+  }, [schema, config.xAxis, config.yAxis]);
 
   const handleDownloadImage = () => {
     if (!chartRef.current) return;
@@ -181,9 +200,12 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
 
     const commonProps = {
       height: 350,
+      width: 1100,
       margin: { top: 40, right: 20, bottom: 60, left: 60 },
       sx: chartTheme,
     };
+
+    const chartData = data.slice(0, 50); // Limit to 50 points for better performance/visibility
 
     switch (config.chartType) {
       case "BAR":
@@ -192,14 +214,17 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
             {...commonProps}
             xAxis={[
               {
-                data: data.map((d) => String(d[config.xAxis])),
+                data: chartData.map((d) => String(d[config.xAxis] ?? "N/A")),
                 scaleType: "band",
                 label: config.xAxis.toUpperCase(),
               },
             ]}
             series={[
               {
-                data: data.map((d) => Number(d[config.yAxis])),
+                data: chartData.map((d) => {
+                  const val = Number(d[config.yAxis]);
+                  return isNaN(val) ? 0 : val;
+                }),
                 label: config.yAxis.replace(/_/g, " ").toUpperCase(),
                 color: "#3b82f6",
               },
@@ -212,14 +237,17 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
             {...commonProps}
             xAxis={[
               {
-                data: data.map((d) => String(d[config.xAxis])),
+                data: chartData.map((d) => String(d[config.xAxis] ?? "N/A")),
                 scaleType: "point",
                 label: config.xAxis.toUpperCase(),
               },
             ]}
             series={[
               {
-                data: data.map((d) => Number(d[config.yAxis])),
+                data: chartData.map((d) => {
+                  const val = Number(d[config.yAxis]);
+                  return isNaN(val) ? 0 : val;
+                }),
                 label: config.yAxis.replace(/_/g, " ").toUpperCase(),
                 color: "#10b981",
                 area: true,
@@ -231,20 +259,23 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
         return (
           <PieChart
             height={320}
-            width={340}
+            width={1100}
             sx={chartTheme}
             series={[
               {
-                data: data.slice(0, 10).map((d, i) => ({
-                  id: i,
-                  value: Number(d[config.yAxis || schema.numericCols[0]]),
-                  label: String(d[config.xAxis]),
-                })),
+                data: chartData.slice(0, 10).map((d, i) => {
+                  const val = Number(d[config.yAxis || schema.numericCols[0]]);
+                  return {
+                    id: i,
+                    value: isNaN(val) ? 0 : val,
+                    label: String(d[config.xAxis] ?? `Item ${i}`),
+                  };
+                }),
                 innerRadius: 60,
                 outerRadius: 100,
                 paddingAngle: 5,
                 cornerRadius: 8,
-                cx: 150,
+                cx: "50%",
               },
             ]}
             slotProps={{
@@ -262,11 +293,15 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
             {...commonProps}
             series={[
               {
-                data: data.map((d, i) => ({
-                  x: Number(d[config.xAxis]),
-                  y: Number(d[config.yAxis]),
-                  id: i,
-                })),
+                data: chartData.map((d, i) => {
+                  const xVal = Number(d[config.xAxis]);
+                  const yVal = Number(d[config.yAxis]);
+                  return {
+                    x: isNaN(xVal) ? 0 : xVal,
+                    y: isNaN(yVal) ? 0 : yVal,
+                    id: i,
+                  };
+                }),
                 label: `${config.yAxis} vs ${config.xAxis}`,
                 color: "#f59e0b",
               },
