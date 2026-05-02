@@ -162,7 +162,11 @@ const AIChatInterface = () => {
                 <div
                   className={`flex flex-col sm:flex-row ${
                     msg.sender === "user" ? "sm:flex-row-reverse" : "flex-row"
-                  } gap-3 w-full max-w-[95%] sm:max-w-[85%] md:max-w-[80%]`}
+                  } gap-3 ${
+                    msg.sender === "user"
+                      ? "max-w-[85%] sm:max-w-[70%]"
+                      : "w-full max-w-[95%] sm:max-w-[85%] md:max-w-[80%]"
+                  }`}
                 >
                   <div
                     className={`h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center mt-1 ${
@@ -176,12 +180,12 @@ const AIChatInterface = () => {
                     )}
                   </div>
                   <div
-                    className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words overflow-hidden min-w-0 w-full ${
+                    className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words overflow-hidden min-w-0 ${
                       msg.sender === "user"
-                        ? "bg-blue-600 text-white rounded-tr-none sm:rounded-tr-none"
+                        ? "bg-blue-600 text-white rounded-tr-none"
                         : msg.isError
-                          ? "bg-red-900/20 border border-red-900/50 text-red-200 rounded-tl-none"
-                          : "bg-zinc-800/80 text-zinc-200 rounded-tl-none border border-zinc-700/50"
+                          ? "bg-red-900/20 border border-red-900/50 text-red-200 rounded-tl-none w-full"
+                          : "bg-zinc-800/80 text-zinc-200 rounded-tl-none border border-zinc-700/50 w-full"
                     }`}
                   >
                     {msg.text}

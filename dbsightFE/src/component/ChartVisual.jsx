@@ -25,6 +25,22 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
     yAxis: "",
   });
   const chartRef = useRef(null);
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(600);
+
+  // Track container width for responsive charts
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        if (w > 0) setContainerWidth(w);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const schema = useMemo(() => extractSchema(queryResult), [queryResult]);
   const data = queryResult || [];
@@ -155,9 +171,11 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
       );
     }
 
+    const chartWidth = Math.max(containerWidth - 32, 250); // account for padding
+
     const commonProps = {
       height: 350,
-      width: 1100,
+      width: chartWidth,
       margin: { top: 40, right: 20, bottom: 60, left: 60 },
       sx: chartTheme,
     };
@@ -216,7 +234,7 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
         return (
           <PieChart
             height={320}
-            width={1100}
+            width={chartWidth}
             sx={chartTheme}
             series={[
               {
@@ -271,7 +289,7 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 1 }}>
+    <Box ref={containerRef} sx={{ display: "flex", flexDirection: "column", gap: 2, p: 1, width: "100%" }}>
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
         <FormControl size="small" sx={{ minWidth: 150 }}>
           <InputLabel sx={{ color: "#a1a1aa" }}>Chart Type</InputLabel>
