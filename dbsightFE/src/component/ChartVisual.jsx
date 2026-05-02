@@ -406,6 +406,14 @@ const ChartVisual = ({ queryResult, initialChartType = "BAR" }) => {
               <FileSpreadsheet size={20} />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Download PNG">
+            <IconButton 
+              onClick={handleDownloadImage}
+              sx={{ color: "#a1a1aa", "&:hover": { color: "#10b981", bgcolor: "rgba(16, 185, 129, 0.1)" } }}
+            >
+              <ImageIcon size={20} />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 
