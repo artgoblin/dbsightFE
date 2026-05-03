@@ -1,7 +1,7 @@
 // components/LoginPage.tsx
 import { useState, FormEvent, useEffect } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router";
-import { CiInstagram, CiMail } from "react-icons/ci";
+import { CiInstagram, CiLinkedin, CiMail } from "react-icons/ci";
 import { FaGithub } from "react-icons/fa";
 import {
   useForgotPasswordMutation,
@@ -144,7 +144,7 @@ export const LoginPage = () => {
         </div>
       </div>
 
-      <footer className="h-17 flex flex-col bg-gray-900 flex items-center justify-center shrink-0 border-t border-zinc-800">
+      <footer className="h-17 flex flex-col bg-gray-900 flex items-center justify-center shrink-0 border-t border-zinc-800 p-3">
         <p className="text-sm text-zinc-400">
           © 2026 artgoblin's Work • Smart DB Tool
         </p>
@@ -158,12 +158,12 @@ export const LoginPage = () => {
             <FaGithub />
           </a>
           <a
-            href="https://github.com/artgoblin"
+            href="https://www.linkedin.com/in/satabda-das-29620a190/"
             target="_blank"
             rel="noopener noreferrer"
             className=" hover:text-zinc-400 hover:cursor-pointer hover:scale-110 transition-colors duration-200"
           >
-            <CiInstagram />
+            <CiLinkedin />
           </a>
           <a
             href="https://mail.google.com/mail/?view=cm&fs=1&to=satabdadas3@gmail.com"
