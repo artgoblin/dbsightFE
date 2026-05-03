@@ -55,7 +55,6 @@ const AutoSlider = () => {
         spaceBetween={40}
         slidesPerView={1}
         speed={800}
-        className="w-full h-full"
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
@@ -70,7 +69,7 @@ const AutoSlider = () => {
               </div>
 
               {/* Text Content */}
-              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold mb-4 p-1 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
                 {slide.title}
               </h2>
               <p className="text-blue-100 text-xl max-w-2xl leading-relaxed">
