@@ -1,21 +1,32 @@
 // components/LoginPage.tsx
 import { useState, FormEvent, useEffect } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router";
-import { Database } from "lucide-react"; // or your icon lib
-import { useForgotPasswordMutation, useLoginMutation, useSignupMutation } from "../features/schema/baseQuery";
+import { CiInstagram, CiMail } from "react-icons/ci";
+import { FaGithub } from "react-icons/fa";
+import {
+  useForgotPasswordMutation,
+  useLoginMutation,
+  useSignupMutation,
+} from "../features/schema/baseQuery";
 import AutoSlider from "./AutoSlider";
 import LoginPanel from "./LoginPanel";
 import SignUpPanel from "./SignUpPanel";
 import ForgotPasswordPanel from "./ForgotPasswordPanel";
 import { Snackbar, Alert } from "@mui/material";
+import { Mail } from "lucide-react";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [login, { isLoading: isLoginLoading, error: loginError }] = useLoginMutation();
-  const [signup, { isLoading: isSignupLoading, error: signupError }] = useSignupMutation();
-  const [forgotPassword, { isLoading: isForgotPasswordLoading, error: forgotPasswordError }] = useForgotPasswordMutation();
+  const [login, { isLoading: isLoginLoading, error: loginError }] =
+    useLoginMutation();
+  const [signup, { isLoading: isSignupLoading, error: signupError }] =
+    useSignupMutation();
+  const [
+    forgotPassword,
+    { isLoading: isForgotPasswordLoading, error: forgotPasswordError },
+  ] = useForgotPasswordMutation();
   const [panelType, setPanelType] = useState("login");
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -75,11 +86,15 @@ export const LoginPage = () => {
     e.preventDefault();
     try {
       const result = await forgotPassword({ email }).unwrap();
-      showMessage(result.message || "Password reset link sent to your email", "success");
+      showMessage(
+        result.message || "Password reset link sent to your email",
+        "success",
+      );
       setPanelType("login");
     } catch (err) {
       console.error("Forgot password failed:", err);
-      const errorMsg = err?.data?.message || "Failed to process request. Please try again.";
+      const errorMsg =
+        err?.data?.message || "Failed to process request. Please try again.";
       showMessage(errorMsg, "error");
     }
   };
@@ -103,8 +118,8 @@ export const LoginPage = () => {
               error={loginError}
               setPanelType={setPanelType}
             />
-          ) : panelType === "signUp" ?(
-            <SignUpPanel 
+          ) : panelType === "signUp" ? (
+            <SignUpPanel
               handleSubmit={handleSignupSubmit}
               setPanelType={setPanelType}
               email={email}
@@ -116,7 +131,7 @@ export const LoginPage = () => {
               isLoading={isSignupLoading}
               error={signupError}
             />
-          ):(
+          ) : (
             <ForgotPasswordPanel
               handleSubmit={handleForgotPasswordSubmit}
               email={email}
@@ -129,10 +144,36 @@ export const LoginPage = () => {
         </div>
       </div>
 
-      <footer className="h-16 bg-gray-900 flex items-center justify-center shrink-0 border-t border-zinc-800">
+      <footer className="h-17 flex flex-col bg-gray-900 flex items-center justify-center shrink-0 border-t border-zinc-800">
         <p className="text-sm text-zinc-400">
           © 2026 artgoblin's Work • Smart DB Tool
         </p>
+        <div className="flex flex-row items-center justify-center gap-4 text-white hover:cursor-pointer p-1">
+          <a
+            href="https://github.com/artgoblin"
+            target="_blank"
+            rel="noopener noreferrer"
+            className=" hover:text-zinc-400 hover:cursor-pointer hover:scale-110 transition-colors duration-200"
+          >
+            <FaGithub />
+          </a>
+          <a
+            href="https://github.com/artgoblin"
+            target="_blank"
+            rel="noopener noreferrer"
+            className=" hover:text-zinc-400 hover:cursor-pointer hover:scale-110 transition-colors duration-200"
+          >
+            <CiInstagram />
+          </a>
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=satabdadas3@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-zinc-400 hover:cursor-pointer hover:scale-110 transition-colors duration-200"
+          >
+            <CiMail />
+          </a>
+        </div>
       </footer>
 
       <Snackbar

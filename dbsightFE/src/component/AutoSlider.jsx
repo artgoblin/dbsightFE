@@ -43,7 +43,7 @@ const AutoSlider = () => {
   ];
 
   return (
-    <div className=" bg-gradient-to-br from-blue-700 to-indigo-800 flex items-center justify-center p-6">
+    <div className=" bg-gradient-to-br from-blue-700 to-indigo-800 flex items-center justify-center p-4">
       <Swiper
         modules={[Autoplay]}
         autoplay={{
