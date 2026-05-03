@@ -1,4 +1,48 @@
 @import "tailwindcss";
+
+/* Prevent text cursor (caret) from appearing on non-interactive elements */
+*,
+*::before,
+*::after {
+  cursor: default;
+}
+
+/* Restore proper cursor for interactive elements */
+a,
+button,
+[role="button"],
+select,
+summary,
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}
+
+/* Disable text selection on non-interactive elements */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  caret-color: transparent;
+}
+
+/* Allow text selection and caret in input fields */
+input,
+textarea,
+[contenteditable="true"],
+code,
+pre,
+.MuiDataGrid-cell {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+  caret-color: auto;
+}
 /* Custom Scrollbar for Webkit browsers (Chrome, Edge, Safari) */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px; /* Width of vertical scrollbar */
