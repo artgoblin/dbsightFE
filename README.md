@@ -16,7 +16,9 @@ https://github.com/user-attachments/assets/a90fdb30-43a6-4f63-a832-e67a41a98a85
 
 
 
-[resetpass.webm](https://github.com/user-attachments/assets/ff78da88-b28d-4477-94a4-c97282eec494)
+https://github.com/user-attachments/assets/dd29d470-8362-41b7-89b0-c12449fd392f
+
+
 
 ---
 
