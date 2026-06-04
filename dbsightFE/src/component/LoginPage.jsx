@@ -19,13 +19,13 @@ export const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [login, { isLoading: isLoginLoading, error: loginError }] =
+  const [login, { isLoading: isLoginLoading, error: loginError, reset: resetLogin }] =
     useLoginMutation();
-  const [signup, { isLoading: isSignupLoading, error: signupError }] =
+  const [signup, { isLoading: isSignupLoading, error: signupError, reset: resetSignup }] =
     useSignupMutation();
   const [
     forgotPassword,
-    { isLoading: isForgotPasswordLoading, error: forgotPasswordError },
+    { isLoading: isForgotPasswordLoading, error: forgotPasswordError, reset: resetForgotPassword },
   ] = useForgotPasswordMutation();
   const [panelType, setPanelType] = useState("login");
   const [snackbar, setSnackbar] = useState({
@@ -40,6 +40,10 @@ export const LoginPage = () => {
     setUsername("");
     setPassword("");
     setEmail("");
+    // Reset mutation states to clear stale errors when switching panels
+    resetLogin();
+    resetSignup();
+    resetForgotPassword();
   }, [panelType]);
 
   const handleCloseSnackbar = (event, reason) => {
