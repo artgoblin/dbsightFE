@@ -17,9 +17,14 @@ export const baseQueryWithLogout = async (args, api, extraOptions) => {
   let result = await authBaseQuery(args, api, extraOptions);
 
   // Auto logout on 401 (Unauthorized) or 403 (Forbidden/Token Expired)
+  // Do not redirect/refresh if calling authentication endpoints (e.g. login, signup)
+  const url = typeof args === "string" ? args : args?.url || "";
+  const isAuthEndpoint = url.includes("/auth/");
+
   if (
     result.error &&
-    (result.error.status === 401 || result.error.status === 403)
+    (result.error.status === 401 || result.error.status === 403) &&
+    !isAuthEndpoint
   ) {
     localStorage.clear(); // Clear all data to ensure a clean state
     window.location.href = "/login";
